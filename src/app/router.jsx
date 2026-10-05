@@ -32,8 +32,8 @@ export const router = createBrowserRouter([
         errorElement: <ErroRota />,
         children: [
           { index: true, lazy: pagina(() => import('@/features/catalogo/HomePage')) },
-          { path: 'carros', ...emBreve('Carros', 2) },
-          { path: 'carros/:id', ...emBreve('Detalhe do carro', 2) },
+          { path: 'carros', lazy: pagina(() => import('@/features/catalogo/CatalogoPage')) },
+          { path: 'carros/:id', lazy: pagina(() => import('@/features/catalogo/CarroDetalhePage')) },
           { path: 'entrar', lazy: pagina(() => import('@/features/auth/EntrarPage')) },
           { path: 'criar-conta', ...emBreve('Criar conta', 3) },
           { path: 'oauth/callback', lazy: pagina(() => import('@/features/auth/OAuthCallbackPage')) },

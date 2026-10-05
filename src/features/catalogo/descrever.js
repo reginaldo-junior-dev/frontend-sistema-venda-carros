@@ -18,3 +18,11 @@ export function fotoPrincipal(carro) {
   const imagens = carro.imagens ?? []
   return imagens.find((i) => i.principal) ?? [...imagens].sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0))[0] ?? null
 }
+
+// Mesmo nome no card e na foto principal do detalhe: o navegador anima uma até a outra
+export const nomeTransicaoFoto = (id) => `foto-carro-${id}`
+
+// Principal primeiro, depois pela ordem definida no cadastro
+export function ordenarImagens(imagens = []) {
+  return [...imagens].sort((a, b) => Number(b.principal) - Number(a.principal) || (a.ordem ?? 0) - (b.ordem ?? 0))
+}

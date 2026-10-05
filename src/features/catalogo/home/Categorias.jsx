@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { normalizar } from '@/lib/texto'
 import { cn } from '@/lib/utils'
 
 const TIPOS = [
@@ -7,13 +8,6 @@ const TIPOS = [
   { nome: 'Hatch', foto: '/imagens/hatch.webp', texto: 'Ágil e econômico na cidade', classe: '' },
   { nome: 'Picape', foto: '/imagens/picape.webp', texto: 'Carga e força para o trabalho', classe: '' },
 ]
-
-const normalizar = (s = '') =>
-  s
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .trim()
 
 // As fotos são do site; o link usa a categoria da API com o mesmo nome, quando existe
 export function Categorias({ categorias }) {

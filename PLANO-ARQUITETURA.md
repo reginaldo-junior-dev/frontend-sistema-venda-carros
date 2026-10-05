@@ -234,7 +234,16 @@ Todas as páginas são carregadas com `lazy()`. O admin vira um chunk separado e
 | **3. Conta** | Login, cadastro, Google, perfil de cliente, endereços, minhas listas | 1 (+ ajuste OAuth no back) |
 | **4. Compra e pagamento** | Reserva com contagem regressiva de 30 min, checkout com Stripe Elements (3DS), PIX/boleto, parcelas, histórico | 2, 3 |
 | **5. Painel admin** | Dashboard com gráficos, CRUD de estoque, upload de imagens com arrastar e soltar, cadastros, vendas, interesses | 1 |
-| **6. Qualidade e entrega** | Testes, acessibilidade, performance, build de produção, README | todas |
+| **6. Qualidade e entrega** | Testes, acessibilidade, performance, build de produção, README. Remover o `.env.example` e criar o `.env.production` com a URL da API em produção | todas |
+
+### Status da Fase 2 (Catálogo): concluída
+
+- `/carros`: filtros na URL (cada filtro vira um passo no histórico), gaveta de filtros no celular, etiquetas dos filtros ativos, ordenação, paginação de 12 em 12 e grade que se reorganiza com animação.
+- `/carros/:id`: galeria (deslize, arrastar, teclado, miniaturas, tela cheia), painel de compra fixo, ficha técnica, descrição e "Parecidos com este".
+- Transição card → detalhe pela View Transitions API (`viewTransition` do React Router + `view-transition-name` na foto).
+- Favoritos com atualização otimista; "Tenho interesse" com formulário preenchido a partir da conta.
+- **Descoberta no back-end:** favoritar e registrar interesse exigem cadastro de cliente (`/cliente`). O `CadastroClienteProvider` pede CPF, nascimento e telefone uma única vez e depois continua a ação.
+- **Pendente para a Fase 4:** o botão "Reservar carro" ainda mostra um aviso; a criação da compra (`POST /compra`) e o pagamento entram lá.
 
 ---
 

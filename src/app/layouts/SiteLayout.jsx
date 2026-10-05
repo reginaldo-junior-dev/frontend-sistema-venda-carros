@@ -4,6 +4,7 @@ import { Menu, Moon, Sun } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { useAuth } from '@/features/auth/useAuth'
+import { CadastroClienteProvider } from '@/features/cliente/CadastroClienteProvider'
 import { useTema } from '@/lib/tema'
 import { cn } from '@/lib/utils'
 import { FocoNaRota } from './FocoNaRota'
@@ -28,7 +29,9 @@ export function SiteLayout() {
       </a>
       <Cabecalho />
       <main id="conteudo" className="flex-1">
-        <Outlet />
+        <CadastroClienteProvider>
+          <Outlet />
+        </CadastroClienteProvider>
       </main>
       <Rodape />
       <ScrollRestoration />
