@@ -20,14 +20,19 @@ export function numero(valor) {
 }
 
 // LocalDate ("2024-03-01") é lida como data local, sem deslocar o dia pelo fuso
+// Data malformada vinda da API não pode derrubar a tela: volta vazio
+const valida = (d) => !Number.isNaN(d.getTime())
+
 export function data(valor) {
   if (!valor) return ''
   const d = /^\d{4}-\d{2}-\d{2}$/.test(valor) ? new Date(`${valor}T00:00:00`) : new Date(valor)
-  return dataFmt.format(d)
+  return valida(d) ? dataFmt.format(d) : ''
 }
 
 export function dataHora(valor) {
-  return valor ? dataHoraFmt.format(new Date(valor)) : ''
+  if (!valor) return ''
+  const d = new Date(valor)
+  return valida(d) ? dataHoraFmt.format(d) : ''
 }
 
 export function soDigitos(valor = '') {

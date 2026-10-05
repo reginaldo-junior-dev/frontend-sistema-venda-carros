@@ -48,10 +48,13 @@ export const router = createBrowserRouter([
                   { index: true, lazy: pagina(() => import('@/features/conta/MeusDadosPage')) },
                   { path: 'favoritos', lazy: pagina(() => import('@/features/conta/FavoritosPage')) },
                   { path: 'interesses', lazy: pagina(() => import('@/features/conta/InteressesPage')) },
-                  { path: 'compras', ...emBreve('Minhas compras', 4, false) },
+                  { path: 'compras', lazy: pagina(() => import('@/features/compra/MinhasComprasPage')) },
                 ],
               },
-              { path: 'conta/compras/:id/pagamento', ...emBreve('Pagamento', 4) },
+              {
+                path: 'conta/compras/:id/pagamento',
+                lazy: pagina(() => import('@/features/compra/PagamentoPage')),
+              },
             ],
           },
           {

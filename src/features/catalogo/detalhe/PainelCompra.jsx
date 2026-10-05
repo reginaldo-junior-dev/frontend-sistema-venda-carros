@@ -1,16 +1,20 @@
 import { useState } from 'react'
+import { Link, useNavigate } from 'react-router'
 import { Check, Share2, Timer } from 'lucide-react'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Plaqueta } from '@/components/shared/Plaqueta'
 import { Preco } from '@/components/shared/Preco'
 import { useExigirCliente } from '@/features/cliente/useExigirCliente'
+import { useMinhasCompras, useReservar } from '@/features/compra/hooks'
+import { MINUTOS_RESERVA } from '@/features/compra/reserva'
 import { BotaoFavorito } from '@/features/favoritos/BotaoFavorito'
 import { InteresseDialog } from '@/features/interesses/InteresseDialog'
 import { useMeusInteresses } from '@/features/interesses/hooks'
 import { CAMBIO, STATUS_CARRO, TOM_STATUS_CARRO } from '@/lib/enums'
-import { km } from '@/lib/format'
+import { km, moeda } from '@/lib/format'
 
 /** Coluna de decisão do detalhe: o que é, quanto custa e o que fazer agora. */
 export function PainelCompra({ carro, d }) {
@@ -20,10 +24,28 @@ export function PainelCompra({ carro, d }) {
   const nomeCompleto = `${d.marca} ${carro.nome}`.trim()
   const disponivel = carro.status === 'DISPONIVEL'
   const jaDemonstrouInteresse = carroIds.has(carro.id)
+  const navigate = useNavigate()
+  const reservarCarro = useReservar()
+  const [confirmando, setConfirmando] = useState(false)
+  // Reserva em aberto da própria pessoa: o carro aparece como RESERVADO, mas o caminho é continuar o pagamento
+  const minhaReserva = useMinhasCompras().data?.find((c) => c.carroId === carro.id && c.status === 'PENDENTE')
 
   function reservar() {
-    // A reserva (POST /compra) e o pagamento chegam na fase 4
-    exigirCliente(() => toast.info('A reserva online será liberada em breve.'), 'Para reservar,')
+    exigirCliente(() => setConfirmando(true), 'Para reservar,')
+  }
+
+  function confirmarReserva() {
+    reservarCarro.mutate(carro.id, {
+      onSuccess: (compra) => {
+        setConfirmando(false)
+        toast.success(`Carro reservado. Você tem ${MINUTOS_RESERVA} minutos para pagar.`)
+        navigate(`/conta/compras/${compra.id}/pagamento`)
+      },
+      onError: (erro) => {
+        setConfirmando(false)
+        toast.error(erro.status === 409 ? 'Outra pessoa acabou de reservar este carro.' : erro.message)
+      },
+    })
   }
 
   async function compartilhar() {
@@ -66,9 +88,15 @@ export function PainelCompra({ carro, d }) {
       </div>
 
       <div className="flex flex-col gap-3">
-        <Button tamanho="lg" onClick={reservar} disabled={!disponivel}>
-          {disponivel ? 'Reservar carro' : carro.status === 'RESERVADO' ? 'Reservado por outra pessoa' : 'Carro vendido'}
-        </Button>
+        {minhaReserva ? (
+          <Button asChild tamanho="lg">
+            <Link to={`/conta/compras/${minhaReserva.id}/pagamento`}>Continuar pagamento</Link>
+          </Button>
+        ) : (
+          <Button tamanho="lg" onClick={reservar} disabled={!disponivel}>
+            {disponivel ? 'Reservar carro' : carro.status === 'RESERVADO' ? 'Reservado por outra pessoa' : 'Carro vendido'}
+          </Button>
+        )}
         {carro.status !== 'VENDIDO' &&
           (jaDemonstrouInteresse ? (
             <p className="flex h-13 items-center justify-center gap-2 rounded-controle bg-livre/10 font-semibold text-livre">
@@ -92,6 +120,26 @@ export function PainelCompra({ carro, d }) {
           cartão.
         </p>
       )}
+
+      <Dialog open={confirmando} onOpenChange={(v) => !reservarCarro.isPending && setConfirmando(v)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-h3">Reservar este carro?</DialogTitle>
+            <DialogDescription>
+              O {nomeCompleto} sai da vitrine e fica separado para você por {MINUTOS_RESERVA} minutos, por{' '}
+              {moeda(carro.preco)}. Na próxima tela você escolhe entre cartão, Pix ou boleto.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variante="secundaria" onClick={() => setConfirmando(false)} disabled={reservarCarro.isPending}>
+              Agora não
+            </Button>
+            <Button onClick={confirmarReserva} disabled={reservarCarro.isPending}>
+              {reservarCarro.isPending ? 'Reservando…' : 'Reservar e ir para o pagamento'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <InteresseDialog
         aberto={interesseAberto}
