@@ -1,0 +1,31 @@
+import { useEffect, useRef } from 'react'
+import { useNavigate, useSearchParams } from 'react-router'
+import { toast } from 'sonner'
+import { useAuth } from './useAuth'
+
+// Destino do login Google: a API redireciona para cá com ?token=
+export default function OAuthCallbackPage() {
+  const [params] = useSearchParams()
+  const { entrarComToken } = useAuth()
+  const navigate = useNavigate()
+  const tratado = useRef(false)
+
+  useEffect(() => {
+    if (tratado.current) return
+    tratado.current = true
+    const ok = entrarComToken(params.get('token') ?? '')
+    if (ok) {
+      toast.success('Você entrou com sua conta Google.')
+      navigate('/', { replace: true })
+    } else {
+      toast.error('Não foi possível entrar com o Google. Tente de novo ou use e-mail e senha.')
+      navigate('/entrar', { replace: true })
+    }
+  }, [params, entrarComToken, navigate])
+
+  return (
+    <div className="mx-auto max-w-md px-4 py-24">
+      <h1 className="text-lead text-texto-suave">Entrando com Google…</h1>
+    </div>
+  )
+}

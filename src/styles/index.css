@@ -1,0 +1,204 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Tema escuro: classe .dark no <html>, aplicada pelo script em index.html */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Paleta "Pátio"
+ * asfalto   #1E2428  texto e fundos escuros
+ * concreto  #E8EAE9  fundo da página
+ * placa     #F7F8F6  superfícies
+ * mercosul  #0B3D91  marca e ações primárias
+ * sinal     #E8A317  atenção (reservado, prazo)
+ */
+:root {
+  --fundo: #e8eae9;
+  --superficie: #f7f8f6;
+  --superficie-funda: #dfe2e1;
+  --texto: #1e2428;
+  --texto-suave: #5a6469;
+  --borda: #cdd2d1;
+  --marca: #0b3d91;
+  --marca-texto: #ffffff;
+  --marca-suave: #dbe4f4;
+  --sinal: #e8a317;
+  --sinal-texto: #1e2428;
+  --livre: #1f7a4d;
+  --vendido: #b3261e;
+  --foco: #0b3d91;
+
+  /* Nomes esperados pelos componentes do shadcn */
+  --background: var(--fundo);
+  --foreground: var(--texto);
+  --card: var(--superficie);
+  --card-foreground: var(--texto);
+  --popover: var(--superficie);
+  --popover-foreground: var(--texto);
+  --primary: var(--marca);
+  --primary-foreground: var(--marca-texto);
+  --secondary: var(--superficie-funda);
+  --secondary-foreground: var(--texto);
+  --muted: var(--superficie-funda);
+  --muted-foreground: var(--texto-suave);
+  --accent: var(--superficie-funda);
+  --accent-foreground: var(--texto);
+  --destructive: var(--vendido);
+  --border: var(--borda);
+  --input: var(--borda);
+  --ring: var(--foco);
+  --radius: 0.5rem;
+
+  color-scheme: light;
+}
+
+.dark {
+  --fundo: #171c1f;
+  --superficie: #22292d;
+  --superficie-funda: #2c3438;
+  --texto: #e6e9e8;
+  --texto-suave: #9aa5aa;
+  --borda: #384146;
+  --marca: #7fa2ee;
+  --marca-texto: #171c1f;
+  --marca-suave: #26324a;
+  --livre: #5fc08e;
+  --vendido: #f08a80;
+  --foco: #7fa2ee;
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
+
+  --color-fundo: var(--fundo);
+  --color-superficie: var(--superficie);
+  --color-superficie-funda: var(--superficie-funda);
+  --color-texto: var(--texto);
+  --color-texto-suave: var(--texto-suave);
+  --color-borda: var(--borda);
+  --color-marca: var(--marca);
+  --color-marca-texto: var(--marca-texto);
+  --color-marca-suave: var(--marca-suave);
+  --color-sinal: var(--sinal);
+  --color-sinal-texto: var(--sinal-texto);
+  --color-livre: var(--livre);
+  --color-vendido: var(--vendido);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@theme {
+  /* Placa Mercosul: as cores fixas não mudam com o tema */
+  --color-mercosul: #0b3d91;
+  --color-placa: #f7f8f6;
+  --color-asfalto: #1e2428;
+
+  /* Escala modular 1.25 a partir de 16px */
+  --text-lead: 1.25rem;
+  --text-lead--line-height: 1.5;
+  --text-h3: 1.5625rem;
+  --text-h3--line-height: 1.2;
+  --text-h2: 1.953rem;
+  --text-h2--line-height: 1.12;
+  --text-h1: 2.441rem;
+  --text-h1--line-height: 1.05;
+  --text-display: 3.052rem;
+  --text-display--line-height: 1;
+  --text-display-xl: 3.815rem;
+  --text-display-xl--line-height: 0.98;
+
+  /* O raio acompanha a hierarquia, não é um valor único */
+  --radius-plaqueta: 4px;
+  --radius-controle: 8px;
+  --radius-foto: 14px;
+
+  --ease-patio: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  * {
+    @apply border-borda;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-fundo text-texto antialiased;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+    font-optical-sizing: auto;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--foco);
+    outline-offset: 2px;
+  }
+
+  /* Títulos recebem foco por código na troca de rota; o contorno ali só confunde */
+  [tabindex="-1"]:focus {
+    outline: none;
+  }
+
+  ::selection {
+    background: var(--marca);
+    color: var(--marca-texto);
+  }
+}
+
+@layer components {
+  /* Archivo expandida e pesada: a voz de emblema automotivo */
+  .tipo-emblema {
+    font-stretch: 125%;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+  }
+
+  /* Archivo condensada com numerais tabulares: preços, km, ficha técnica */
+  .tipo-dado {
+    font-stretch: 75%;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
