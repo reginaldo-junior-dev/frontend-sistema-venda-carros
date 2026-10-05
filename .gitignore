@@ -25,3 +25,6 @@ dist-ssr
 
 # Mídia em resolução original (as versões otimizadas ficam em public/)
 midia-original
+
+# Documentos de planejamento (ficam só na máquina)
+PLANO-ARQUITETURA.md
