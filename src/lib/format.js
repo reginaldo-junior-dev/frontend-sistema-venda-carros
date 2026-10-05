@@ -53,3 +53,9 @@ export function anos(fabricacao, modelo) {
   if (!fabricacao) return modelo ? String(modelo) : ''
   return fabricacao === modelo || !modelo ? String(fabricacao) : `${fabricacao}/${modelo}`
 }
+
+export function cep(valor = '') {
+  return soDigitos(valor)
+    .slice(0, 8)
+    .replace(/(\d{5})(\d)/, '$1-$2')
+}

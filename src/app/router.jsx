@@ -35,7 +35,7 @@ export const router = createBrowserRouter([
           { path: 'carros', lazy: pagina(() => import('@/features/catalogo/CatalogoPage')) },
           { path: 'carros/:id', lazy: pagina(() => import('@/features/catalogo/CarroDetalhePage')) },
           { path: 'entrar', lazy: pagina(() => import('@/features/auth/EntrarPage')) },
-          { path: 'criar-conta', ...emBreve('Criar conta', 3) },
+          { path: 'criar-conta', lazy: pagina(() => import('@/features/auth/CriarContaPage')) },
           { path: 'oauth/callback', lazy: pagina(() => import('@/features/auth/OAuthCallbackPage')) },
           { path: 'sem-acesso', lazy: pagina(() => import('./paginas/SemAcesso')) },
           {
@@ -45,9 +45,9 @@ export const router = createBrowserRouter([
                 path: 'conta',
                 element: <ContaLayout />,
                 children: [
-                  { index: true, ...emBreve('Meus dados', 3, false) },
-                  { path: 'favoritos', ...emBreve('Favoritos', 3, false) },
-                  { path: 'interesses', ...emBreve('Interesses', 3, false) },
+                  { index: true, lazy: pagina(() => import('@/features/conta/MeusDadosPage')) },
+                  { path: 'favoritos', lazy: pagina(() => import('@/features/conta/FavoritosPage')) },
+                  { path: 'interesses', lazy: pagina(() => import('@/features/conta/InteressesPage')) },
                   { path: 'compras', ...emBreve('Minhas compras', 4, false) },
                 ],
               },

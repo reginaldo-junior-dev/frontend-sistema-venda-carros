@@ -15,3 +15,8 @@ export async function cadastrarCliente({ cpf, dataNascimento, telefone }) {
   const { data } = await http.post('/cliente', { cpf, dataNascimento, telefone })
   return data
 }
+
+export async function atualizarCliente({ cpf, dataNascimento, telefone }) {
+  const { data } = await http.put('/cliente/me', { cpf, dataNascimento, telefone })
+  return data
+}

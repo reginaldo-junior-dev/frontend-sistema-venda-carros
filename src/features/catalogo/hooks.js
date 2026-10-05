@@ -64,3 +64,17 @@ export function useUrlImagem(imagem) {
     gcTime: 12 * 60_000,
   })
 }
+
+// Vários carros por id de uma vez (favoritos e interesses guardam só o carroId)
+export function useCarrosPorId(ids) {
+  return useQueries({
+    queries: ids.map((id) => ({
+      queryKey: ['carro', id],
+      queryFn: () => api.buscarCarro(id),
+      // Carro excluído responde 404: não adianta repetir
+      retry: false,
+    })),
+    combine: (resultados) =>
+      Object.fromEntries(ids.map((id, i) => [id, { carro: resultados[i].data, carregando: resultados[i].isPending, erro: resultados[i].error }])),
+  })
+}

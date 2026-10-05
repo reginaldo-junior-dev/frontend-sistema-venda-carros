@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, ScrollRestoration, useLocation } from 'react-router'
+import { Link, NavLink, Outlet, ScrollRestoration, useLocation, useNavigate } from 'react-router'
 import { Menu, Moon, Sun } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
@@ -114,6 +114,7 @@ function Cabecalho() {
 
 function MenuCelular({ aoNavegar }) {
   const { estaLogado, ehAdmin, usuario, sair } = useAuth()
+  const navigate = useNavigate()
   const item = ({ isActive }) =>
     cn(
       'block rounded-controle px-3 py-3 text-lead font-medium',
@@ -145,8 +146,9 @@ function MenuCelular({ aoNavegar }) {
           <button
             type="button"
             onClick={() => {
-              sair()
               aoNavegar()
+              sair()
+              navigate('/')
             }}
             className="mt-4 rounded-controle px-3 py-3 text-left text-lead font-medium text-vendido hover:bg-superficie-funda"
           >

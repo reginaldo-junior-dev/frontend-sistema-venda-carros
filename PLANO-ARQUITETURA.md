@@ -245,6 +245,18 @@ Todas as páginas são carregadas com `lazy()`. O admin vira um chunk separado e
 - **Descoberta no back-end:** favoritar e registrar interesse exigem cadastro de cliente (`/cliente`). O `CadastroClienteProvider` pede CPF, nascimento e telefone uma única vez e depois continua a ação.
 - **Pendente para a Fase 4:** o botão "Reservar carro" ainda mostra um aviso; a criação da compra (`POST /compra`) e o pagamento entram lá.
 
+### Status da Fase 3 (Conta): concluída
+
+- `/entrar` e `/criar-conta` com foto ao lado, mostrar/esconder senha, indicador de força e botão do Google. Depois de criar a conta, a pessoa entra direto e volta para onde estava (`?voltar=`).
+- `/conta` (Meus dados): dados de acesso, dados de comprador (cria ou edita o cliente), endereços com preenchimento pelo CEP (ViaCEP) e exclusão da conta com confirmação.
+- `/conta/favoritos` e `/conta/interesses` com os carros, datas e o significado de cada status.
+- "Sair" leva à home; sessão expirada leva ao login e volta depois (`saiuPorConta` no `AuthContext`).
+- **Regras do back-end refletidas no front:**
+  - `PUT /usuario/me` grava a senha enviada como nova senha, sem conferir a atual. O formulário avisa isso. *Melhoria sugerida no back-end:* pedir a senha atual e só trocar quando vier uma nova.
+  - Conta Google não pode trocar o e-mail; o campo fica somente leitura.
+  - O endereço principal só deixa de ser principal quando outro assume; o primeiro é sempre principal.
+- **Pendente no back-end:** o login com Google só funciona depois que o `OAuth2LoginSucessoHandler` redirecionar para `/oauth/callback?token=...` (seção 1).
+
 ---
 
 ## 6. Fase 1 — Fundação (detalhada)

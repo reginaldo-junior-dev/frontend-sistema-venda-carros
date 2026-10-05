@@ -26,6 +26,8 @@ export function AuthProvider({ children }) {
   }, [])
 
   const sessao = token ? decodificarToken(token) : null
+  // Diferencia "saiu pelo botão" de "a sessão expirou": no primeiro caso as rotas protegidas mandam para a home
+  const [saiuPorConta, setSaiuPorConta] = useState(false)
 
   // Encerra a sessão no instante em que o JWT expira
   useEffect(() => {
@@ -44,17 +46,22 @@ export function AuthProvider({ children }) {
 
   const entrar = useCallback(async (credenciais) => {
     const novo = await api.entrar(credenciais)
+    setSaiuPorConta(false)
     salvarToken(novo)
     return decodificarToken(novo)
   }, [])
 
   const entrarComToken = useCallback((novo) => {
     const dados = decodificarToken(novo)
-    if (dados) salvarToken(novo)
+    if (dados) {
+      setSaiuPorConta(false)
+      salvarToken(novo)
+    }
     return dados
   }, [])
 
   const sair = useCallback(() => {
+    setSaiuPorConta(true)
     limparToken()
     // Dados pessoais não podem sobreviver à troca de usuário
     queryClient.removeQueries({ queryKey: ['me'] })
@@ -67,11 +74,12 @@ export function AuthProvider({ children }) {
       perfil: sessao?.perfil ?? null,
       usuario: me.data ?? null,
       carregandoUsuario: me.isPending && me.fetchStatus !== 'idle',
+      saiuPorConta,
       entrar,
       entrarComToken,
       sair,
     }),
-    [sessao, me.data, me.isPending, me.fetchStatus, entrar, entrarComToken, sair],
+    [sessao, me.data, me.isPending, me.fetchStatus, saiuPorConta, entrar, entrarComToken, sair],
   )
 
   return <AuthContext value={valor}>{children}</AuthContext>
