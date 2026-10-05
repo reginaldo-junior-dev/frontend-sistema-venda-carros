@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ImagePlus, LoaderCircle, Trash2, TriangleAlert } from 'lucide-react'
+import { LoaderCircle, Trash2, TriangleAlert } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
@@ -10,18 +10,15 @@ import { cn } from '@/lib/utils'
 import { enviarImagem } from '../api'
 import { useExcluirImagem } from '../hooks'
 import { useConfirmacao } from '../useConfirmacao'
-
-const TIPOS = ['image/jpeg', 'image/png', 'image/webp']
-const LIMITE_MB = 10 // spring.servlet.multipart.max-file-size
+import { problemaDoArquivo } from './arquivos'
+import { ZonaFotos } from './ZonaFotos'
 
 /**
- * Fotos do carro: arrastar e soltar (ou escolher), envio em fila com progresso e exclusão.
+ * Fotos de um carro já cadastrado: envio em fila com progresso e exclusão.
  * A API não reordena: a primeira foto enviada é a principal, e a ordem de envio é a da galeria.
  */
 export function FotosCarro({ carro }) {
   const queryClient = useQueryClient()
-  const entrada = useRef(null)
-  const [arrastando, setArrastando] = useState(false)
   const [fila, setFila] = useState([]) // { id, nome, progresso, erro }
   const excluir = useExcluirImagem(carro.id)
   const { confirmar, dialogo } = useConfirmacao()
@@ -29,14 +26,13 @@ export function FotosCarro({ carro }) {
   const enviando = fila.some((f) => !f.erro && f.progresso < 100)
 
   async function adicionar(arquivos) {
-    const novos = [...arquivos].map((arquivo) => {
-      const erro = !TIPOS.includes(arquivo.type)
-        ? 'Use JPG, PNG ou WEBP.'
-        : arquivo.size > LIMITE_MB * 1024 * 1024
-          ? `Maior que ${LIMITE_MB} MB.`
-          : null
-      return { id: crypto.randomUUID(), arquivo, nome: arquivo.name, progresso: 0, erro }
-    })
+    const novos = arquivos.map((arquivo) => ({
+      id: crypto.randomUUID(),
+      arquivo,
+      nome: arquivo.name,
+      progresso: 0,
+      erro: problemaDoArquivo(arquivo),
+    }))
     setFila((atual) => [...atual.filter((f) => f.erro || f.progresso < 100), ...novos])
 
     // Um por vez: mantém a ordem escolhida e não sobrecarrega o upload para o S3
@@ -81,45 +77,11 @@ export function FotosCarro({ carro }) {
           Fotos
         </h2>
         <p className="text-sm text-texto-suave">
-          A primeira foto é a principal (aparece no card). Envie na ordem em que quer mostrar. JPG, PNG ou WEBP de até{' '}
-          {LIMITE_MB} MB.
+          A primeira foto é a principal (aparece no card). Envie na ordem em que quer mostrar.
         </p>
       </div>
 
-      <button
-        type="button"
-        onClick={() => entrada.current?.click()}
-        onDragOver={(e) => {
-          e.preventDefault()
-          setArrastando(true)
-        }}
-        onDragLeave={() => setArrastando(false)}
-        onDrop={(e) => {
-          e.preventDefault()
-          setArrastando(false)
-          adicionar(e.dataTransfer.files)
-        }}
-        className={cn(
-          'flex w-full flex-col items-center justify-center gap-2 rounded-controle border-2 border-dashed px-6 py-10 text-center transition-colors',
-          arrastando ? 'border-marca bg-marca-suave' : 'border-borda hover:border-texto/40 hover:bg-superficie-funda/50',
-        )}
-      >
-        <ImagePlus className={cn('size-8', arrastando ? 'text-marca' : 'text-texto-suave')} aria-hidden="true" />
-        <span className="font-semibold">{arrastando ? 'Solte as fotos aqui' : 'Arraste as fotos ou clique para escolher'}</span>
-        <span className="text-sm text-texto-suave">Dá para enviar várias de uma vez</span>
-      </button>
-      <input
-        ref={entrada}
-        type="file"
-        accept={TIPOS.join(',')}
-        multiple
-        className="sr-only"
-        tabIndex={-1}
-        onChange={(e) => {
-          adicionar(e.target.files)
-          e.target.value = ''
-        }}
-      />
+      <ZonaFotos aoEscolher={adicionar} />
 
       {fila.length > 0 && (
         <ul className="mt-4 flex flex-col gap-2" aria-live="polite">
@@ -182,7 +144,7 @@ export function FotosCarro({ carro }) {
           </AnimatePresence>
         </ul>
       ) : (
-        !enviando && <p className="mt-4 text-sm text-sinal-texto">Este carro ainda não tem fotos e aparece com "Foto em breve" no site.</p>
+        !enviando && <p className="mt-4 text-sm text-texto-suave">Este carro ainda não tem fotos e aparece com "Foto em breve" no site.</p>
       )}
       {dialogo}
     </section>

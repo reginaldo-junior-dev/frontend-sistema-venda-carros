@@ -1,4 +1,6 @@
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -20,7 +22,9 @@ import { CAMBIO, COMBUSTIVEL, STATUS_CARRO, TOM_STATUS_CARRO } from '@/lib/enums
 import { anos, km, numero, soDigitos } from '@/lib/format'
 import { useAlterado } from '@/lib/useAlterado'
 import { useSalvarCarro } from '../hooks'
+import { enviarImagem } from '../api'
 import { FotosCarro } from './FotosCarro'
+import { FotosNovoCarro } from './FotosNovoCarro'
 
 const ANO_ATUAL = new Date().getFullYear()
 
@@ -78,7 +82,11 @@ export default function CarroFormPage() {
 
 function Formulario({ carro, lookups }) {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const salvar = useSalvarCarro()
+  // Carro novo: fotos escolhidas antes de salvar, enviadas logo depois do cadastro
+  const [fotosNovas, setFotosNovas] = useState([])
+  const [progressoFotos, setProgressoFotos] = useState(null)
   const {
     control,
     register,
@@ -113,22 +121,48 @@ function Formulario({ carro, lookups }) {
 
   async function enviar(v) {
     const { marcaId: _marca, ...dados } = v
+    let salvo
     try {
-      const salvo = await salvar.mutateAsync({ ...dados, id: carro?.id })
+      salvo = await salvar.mutateAsync({ ...dados, id: carro?.id })
       reset(v)
       marcarSalvo(v)
-      if (carro) {
-        toast.success('Alterações salvas.')
-      } else {
-        toast.success('Carro cadastrado. Agora envie as fotos.')
-        navigate(`/admin/carros/${salvo.id}`, { replace: true })
-      }
     } catch (erro) {
-      if (erro.campos && Object.keys(erro.campos).length) {
-        Object.entries(erro.campos).forEach(([campo, mensagem]) => setError(campo, { message: mensagem }))
-      } else {
-        setError('root', { message: erro.message })
+      mostrarErro(erro)
+      return
+    }
+
+    if (carro) {
+      toast.success('Alterações salvas.')
+      return
+    }
+
+    // Carro novo: envia as fotos escolhidas, uma por vez, na ordem mostrada
+    const falhas = []
+    for (const [i, arquivo] of fotosNovas.entries()) {
+      setProgressoFotos(`Enviando fotos ${i + 1} de ${fotosNovas.length}…`)
+      try {
+        await enviarImagem(salvo.id, arquivo)
+      } catch {
+        falhas.push(arquivo.name)
       }
+    }
+    setProgressoFotos(null)
+    queryClient.invalidateQueries({ queryKey: ['carro', salvo.id] })
+    queryClient.invalidateQueries({ queryKey: ['carros'] })
+
+    if (falhas.length) {
+      toast.error(`Carro cadastrado, mas ${falhas.length === 1 ? 'uma foto não foi enviada' : `${falhas.length} fotos não foram enviadas`}. Tente de novo na página do carro.`)
+    } else {
+      toast.success(fotosNovas.length ? 'Carro cadastrado com as fotos.' : 'Carro cadastrado. Você pode adicionar fotos agora.')
+    }
+    navigate(`/admin/carros/${salvo.id}`, { replace: true })
+  }
+
+  function mostrarErro(erro) {
+    if (erro.campos && Object.keys(erro.campos).length) {
+      Object.entries(erro.campos).forEach(([campo, mensagem]) => setError(campo, { message: mensagem }))
+    } else {
+      setError('root', { message: erro.message })
     }
   }
 
@@ -304,21 +338,20 @@ function Formulario({ carro, lookups }) {
             </Campo>
           </Bloco>
 
-          {carro && <FotosCarro carro={carro} />}
-          {!carro && (
-            <p className="rounded-foto border border-dashed p-5 text-texto-suave">
-              Depois de cadastrar, esta página mostra o envio de fotos.
-            </p>
+          {carro ? (
+            <FotosCarro carro={carro} />
+          ) : (
+            <FotosNovoCarro arquivos={fotosNovas} aoMudar={setFotosNovas} desabilitado={isSubmitting} />
           )}
         </form>
 
         {/* Prévia do card como aparece na vitrine, atualizada enquanto digita */}
         <aside className="xl:sticky xl:top-24 xl:self-start">
           <p className="mb-3 text-sm font-semibold text-texto-suave">Como aparece no site</p>
-          <Previa valores={valores} lookups={lookups} carro={carro} />
+          <Previa valores={valores} lookups={lookups} carro={carro} fotoLocal={fotosNovas[0]} />
           <div className="mt-5 flex flex-col gap-2">
             <Button type="submit" form="form-carro" tamanho="lg" disabled={isSubmitting || (carro && !alterado)}>
-              {isSubmitting ? 'Salvando…' : carro ? 'Salvar alterações' : 'Cadastrar carro'}
+              {progressoFotos ?? (isSubmitting ? 'Salvando…' : carro ? 'Salvar alterações' : 'Cadastrar carro')}
             </Button>
             <Button asChild variante="fantasma">
               <Link to="/admin/carros">Voltar ao estoque</Link>
@@ -373,16 +406,24 @@ function SelectCampo({ control, nome, rotulo, erro, itens, vazio = 'Escolha', de
   )
 }
 
-function Previa({ valores, lookups, carro }) {
+function Previa({ valores, lookups, carro, fotoLocal }) {
   const modelo = lookups.porId.modelo[valores.modeloId]?.nome
   const marca = lookups.porId.marca[valores.marcaId]?.nome
   const anoF = Number(valores.anoFabricacao) || null
   const anoM = Number(valores.anoModelo) || null
 
+  // Carro novo: mostra a primeira foto escolhida, ainda no navegador
+  const urlLocal = useMemo(() => (fotoLocal ? URL.createObjectURL(fotoLocal) : null), [fotoLocal])
+  useEffect(() => () => urlLocal && URL.revokeObjectURL(urlLocal), [urlLocal])
+
   return (
     <article className="rounded-foto border bg-superficie p-3">
       <div className="relative pb-5">
-        <FotoCarro imagem={carro ? fotoPrincipal(carro) : null} alt="" className="aspect-[4/3] rounded-controle" />
+        {urlLocal ? (
+          <img src={urlLocal} alt="" className="aspect-[4/3] w-full rounded-controle object-cover" />
+        ) : (
+          <FotoCarro imagem={carro ? fotoPrincipal(carro) : null} alt="" className="aspect-[4/3] rounded-controle" />
+        )}
         <Plaqueta tamanho="sm" className="absolute bottom-1 left-1/2 max-w-[80%] -translate-x-1/2">
           {modelo || 'Modelo'}
         </Plaqueta>
