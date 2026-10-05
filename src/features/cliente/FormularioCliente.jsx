@@ -7,6 +7,7 @@ import { Campo } from '@/components/shared/Campo'
 import { useAtualizarCliente } from '@/features/conta/hooks'
 import { cpf as mascaraCpf, soDigitos, telefone as mascaraTelefone } from '@/lib/format'
 import { cpfValido, telefoneValido } from '@/lib/validacao'
+import { useAlterado } from '@/lib/useAlterado'
 import { useCadastrarCliente } from './hooks'
 
 const hoje = () => new Date().toISOString().slice(0, 10)
@@ -33,7 +34,8 @@ export function FormularioCliente({ cliente, textoBotao, aoConcluir, className }
     handleSubmit,
     setError,
     reset,
-    formState: { errors, isSubmitting, isDirty },
+    getValues,
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(esquema),
     defaultValues: {
@@ -42,6 +44,8 @@ export function FormularioCliente({ cliente, textoBotao, aoConcluir, className }
       telefone: cliente ? mascaraTelefone(cliente.telefone) : '',
     },
   })
+
+  const { alterado, marcarSalvo } = useAlterado(control, getValues())
 
   async function enviar(valores) {
     const dados = {
@@ -53,6 +57,7 @@ export function FormularioCliente({ cliente, textoBotao, aoConcluir, className }
       const salvo = cliente ? await atualizar.mutateAsync(dados) : await cadastrar.mutateAsync(dados)
       // O formulário passa a considerar os valores salvos como o novo ponto de partida
       reset(valores)
+      marcarSalvo(valores)
       aoConcluir?.(salvo)
     } catch (erro) {
       if (erro.campos && Object.keys(erro.campos).length) {
@@ -112,7 +117,7 @@ export function FormularioCliente({ cliente, textoBotao, aoConcluir, className }
           </Campo>
         )}
       />
-      <Button type="submit" disabled={isSubmitting || (cliente && !isDirty)} className="mt-2 self-start">
+      <Button type="submit" disabled={isSubmitting || (cliente && !alterado)} className="mt-2 self-start">
         {isSubmitting ? 'Salvando…' : textoBotao}
       </Button>
     </form>

@@ -265,7 +265,7 @@ function FormularioEndereco({ endereco, primeiro, aoConcluir }) {
           render={({ field }) => (
             <Campo rotulo="UF" erro={errors.estado?.message}>
               {(props) => (
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select value={field.value ?? ''} onValueChange={field.onChange}>
                   <SelectTrigger id={props.id} aria-invalid={props['aria-invalid']} className="w-full">
                     <SelectValue placeholder="—" />
                   </SelectTrigger>

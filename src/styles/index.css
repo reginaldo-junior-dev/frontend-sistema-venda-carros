@@ -27,6 +27,8 @@
   --livre: #1f7a4d;
   --vendido: #b3261e;
   --foco: #0b3d91;
+  /* Cor das marcas de gráfico: validada (dataviz) na faixa de luminosidade e contraste do tema */
+  --grafico: #2457b8;
 
   /* Nomes esperados pelos componentes do shadcn */
   --background: var(--fundo);
@@ -65,12 +67,13 @@
   --livre: #5fc08e;
   --vendido: #f08a80;
   --foco: #7fa2ee;
+  --grafico: #5f8ce6;
 
   color-scheme: dark;
 }
 
 @theme inline {
-  --font-sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
 
   --color-fundo: var(--fundo);
   --color-superficie: var(--superficie);
@@ -85,6 +88,7 @@
   --color-sinal-texto: var(--sinal-texto);
   --color-livre: var(--livre);
   --color-vendido: var(--vendido);
+  --color-grafico: var(--grafico);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

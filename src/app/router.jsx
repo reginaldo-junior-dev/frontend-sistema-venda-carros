@@ -3,23 +3,11 @@ import { RotaAdmin, RotaAutenticada } from '@/features/auth/guards'
 import { AdminLayout } from './layouts/AdminLayout'
 import { ContaLayout } from './layouts/ContaLayout'
 import { SiteLayout } from './layouts/SiteLayout'
-import { EmBreve } from './paginas/EmBreve'
 import ErroRota from './paginas/ErroRota'
 import NaoEncontrada from './paginas/NaoEncontrada'
 
 // Carrega a página só quando a rota é visitada (o painel admin fica fora do bundle do comprador)
 const pagina = (importar) => async () => ({ Component: (await importar()).default })
-
-// Rotas das próximas fases, com um aviso no lugar da página
-const emBreve = (titulo, fase, contida = true) => ({
-  element: contida ? (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <EmBreve titulo={titulo} fase={fase} />
-    </div>
-  ) : (
-    <EmBreve titulo={titulo} fase={fase} />
-  ),
-})
 
 const rotasDev = import.meta.env.DEV ? [{ path: '_kit', lazy: pagina(() => import('./paginas/KitPage')) }] : []
 
@@ -27,6 +15,8 @@ export const router = createBrowserRouter([
   {
     element: <SiteLayout />,
     errorElement: <ErroRota />,
+    // Primeira carga de uma rota sob demanda: tela neutra até o código chegar
+    hydrateFallbackElement: <div className="min-h-dvh bg-fundo" />,
     children: [
       {
         errorElement: <ErroRota />,
@@ -64,14 +54,14 @@ export const router = createBrowserRouter([
                 path: 'admin',
                 element: <AdminLayout />,
                 children: [
-                  { index: true, ...emBreve('Resumo da revenda', 5, false) },
-                  { path: 'carros', ...emBreve('Estoque', 5, false) },
-                  { path: 'carros/novo', ...emBreve('Novo carro', 5, false) },
-                  { path: 'carros/:id', ...emBreve('Editar carro', 5, false) },
-                  { path: 'cadastros', ...emBreve('Cadastros', 5, false) },
-                  { path: 'vendas', ...emBreve('Vendas', 5, false) },
-                  { path: 'interesses', ...emBreve('Interesses', 5, false) },
-                  { path: 'usuarios', ...emBreve('Usuários', 5, false) },
+                  { index: true, lazy: pagina(() => import('@/features/admin/ResumoPage')) },
+                  { path: 'carros', lazy: pagina(() => import('@/features/admin/EstoquePage')) },
+                  { path: 'carros/novo', lazy: pagina(() => import('@/features/admin/carro/CarroFormPage')) },
+                  { path: 'carros/:id', lazy: pagina(() => import('@/features/admin/carro/CarroFormPage')) },
+                  { path: 'cadastros', lazy: pagina(() => import('@/features/admin/CadastrosPage')) },
+                  { path: 'vendas', lazy: pagina(() => import('@/features/admin/vendas/VendasPage')) },
+                  { path: 'interesses', lazy: pagina(() => import('@/features/admin/InteressesPage')) },
+                  { path: 'usuarios', lazy: pagina(() => import('@/features/admin/UsuariosPage')) },
                 ],
               },
             ],
