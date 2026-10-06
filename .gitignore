@@ -10,6 +10,11 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dist-e2e
+
+# Resultados dos testes de ponta a ponta
+test-results
+playwright-report
 *.local
 
 # Editor directories and files
