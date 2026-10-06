@@ -11,4 +11,11 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  // Testes unitários e de componente (os de ponta a ponta ficam em e2e/, com o Playwright)
+  test: {
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
+    include: ['src/**/*.test.{js,jsx}'],
+    env: { VITE_API_URL: 'http://api.teste' },
+  },
 })
