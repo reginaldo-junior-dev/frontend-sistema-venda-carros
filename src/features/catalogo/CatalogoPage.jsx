@@ -65,7 +65,11 @@ export default function CatalogoPage() {
           </div>
         </aside>
 
-        <section aria-label="Resultados" className="min-w-0">
+        <section aria-labelledby="titulo-resultados" className="min-w-0">
+          {/* Mantém a ordem dos títulos (h1 → h2 → h3 dos cards) para quem navega por títulos */}
+          <h2 id="titulo-resultados" className="sr-only">
+            Resultados
+          </h2>
           <div ref={topoResultados} className="scroll-mt-24" />
           <div className="mb-6 flex flex-wrap items-center gap-3">
             <Sheet open={gavetaAberta} onOpenChange={setGavetaAberta}>

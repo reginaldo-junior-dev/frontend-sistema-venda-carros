@@ -1,11 +1,13 @@
-import { useCallback, useMemo, useState } from 'react'
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useAuth } from '@/features/auth/useAuth'
 import * as api from './api'
 import { CadastroClienteContext } from './contexto'
-import { FormularioCliente } from './FormularioCliente'
+
+// O formulário (com zod e react-hook-form) só é baixado quando o cadastro é pedido, não em toda página
+const FormularioCliente = lazy(() => import('./FormularioCliente').then((m) => ({ default: m.FormularioCliente })))
 
 export function CadastroClienteProvider({ children }) {
   const { estaLogado } = useAuth()
@@ -47,11 +49,13 @@ export function CadastroClienteProvider({ children }) {
             </DialogDescription>
           </DialogHeader>
           {pendente && (
-            <FormularioCliente
-              textoBotao="Salvar e continuar"
-              aoConcluir={concluir}
-              className="flex flex-col gap-4 [&>button]:self-stretch"
-            />
+            <Suspense fallback={<div aria-busy="true" className="h-72 animate-pulse rounded-controle bg-superficie-funda" />}>
+              <FormularioCliente
+                textoBotao="Salvar e continuar"
+                aoConcluir={concluir}
+                className="flex flex-col gap-4 [&>button]:self-stretch"
+              />
+            </Suspense>
           )}
         </DialogContent>
       </Dialog>

@@ -3,11 +3,15 @@ import { normalizar } from '@/lib/texto'
 import { cn } from '@/lib/utils'
 
 const TIPOS = [
-  { nome: 'Sedã', foto: '/imagens/sedan.webp', texto: 'Conforto e porta-malas para a família', classe: 'lg:col-span-2 lg:row-span-2' },
-  { nome: 'SUV', foto: '/imagens/suv.webp', texto: 'Altura, espaço e posição de dirigir elevada', classe: 'lg:col-span-2' },
-  { nome: 'Hatch', foto: '/imagens/hatch.webp', texto: 'Ágil e econômico na cidade', classe: '' },
-  { nome: 'Picape', foto: '/imagens/picape.webp', texto: 'Carga e força para o trabalho', classe: '' },
+  { nome: 'Sedã', foto: 'sedan', texto: 'Conforto e porta-malas para a família', classe: 'lg:col-span-2 lg:row-span-2', largo: true },
+  { nome: 'SUV', foto: 'suv', texto: 'Altura, espaço e posição de dirigir elevada', classe: 'lg:col-span-2', largo: true },
+  { nome: 'Hatch', foto: 'hatch', texto: 'Ágil e econômico na cidade', classe: '' },
+  { nome: 'Picape', foto: 'picape', texto: 'Carga e força para o trabalho', classe: '' },
 ]
+
+// Cada foto existe em 480, 800 e 1200 px de largura; o navegador escolhe pelo tamanho que ela ocupa na tela
+const srcSet = (foto) => `/imagens/${foto}-480.webp 480w, /imagens/${foto}-800.webp 800w, /imagens/${foto}.webp 1200w`
+const larguraNaTela = (largo) => `(min-width: 1024px) ${largo ? '620px' : '300px'}, (min-width: 640px) 50vw, 100vw`
 
 // As fotos são do site; o link usa a categoria da API com o mesmo nome, quando existe
 export function Categorias({ categorias }) {
@@ -31,7 +35,9 @@ export function Categorias({ categorias }) {
                 className="group relative isolate flex size-full flex-col justify-end overflow-hidden rounded-foto p-6 text-white"
               >
                 <img
-                  src={tipo.foto}
+                  src={`/imagens/${tipo.foto}-800.webp`}
+                  srcSet={srcSet(tipo.foto)}
+                  sizes={larguraNaTela(tipo.largo)}
                   alt=""
                   loading="lazy"
                   className="absolute inset-0 -z-10 size-full object-cover transition-transform duration-700 ease-patio group-hover:scale-[1.06]"

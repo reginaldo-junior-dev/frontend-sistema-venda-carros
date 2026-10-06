@@ -66,7 +66,8 @@ export function VideoFundo({ aoFicarPronto, className }) {
         muted
         loop
         playsInline
-        preload="auto"
+        // A capa aparece na hora; o vídeo só baixa quando começa a tocar, sem disputar banda com o resto da página
+        preload="none"
         aria-hidden="true"
         disablePictureInPicture
         onLoadedData={aoFicarPronto}
