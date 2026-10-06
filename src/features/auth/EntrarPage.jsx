@@ -35,9 +35,9 @@ export default function EntrarPage() {
 
   async function enviar(valores) {
     try {
-      const sessao = await entrar(valores)
+      const conta = await entrar(valores)
       toast.success('Você entrou na sua conta.')
-      navigate(destinoAposEntrar(voltar, sessao?.perfil), { replace: true })
+      navigate(destinoAposEntrar(voltar, conta.perfil), { replace: true })
     } catch (erro) {
       // Credenciais erradas voltam como 401/403, sem dizer qual campo errou
       setError('root', {

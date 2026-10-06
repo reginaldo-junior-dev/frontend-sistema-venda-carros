@@ -69,3 +69,14 @@ test('trocar a senha exige a senha atual certa', async ({ page, api }) => {
   await expect(page.getByText('Dados de acesso e senha salvos.')).toBeVisible()
   expect(api.contas['ana@exemplo.com'].senha).toBe('novaSenha123')
 })
+
+test('sair pede à API para apagar o cookie e volta para a home', async ({ page, api, isMobile }) => {
+  test.skip(isMobile, 'No celular o menu da conta fica na gaveta; o caminho até a API é o mesmo')
+  await page.goto('/carros')
+  await page.getByRole('button', { name: 'Ana' }).click()
+  await page.getByRole('menuitem', { name: 'Sair' }).click()
+
+  await expect(page).toHaveURL('/')
+  await expect(page.getByRole('link', { name: 'Entrar' })).toBeVisible()
+  expect(api.perfilLogado).toBeNull()
+})

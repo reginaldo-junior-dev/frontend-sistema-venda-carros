@@ -1,24 +1,21 @@
 import axios from 'axios'
-import { lerToken, limparToken } from './sessao'
+import { avisarSessaoPerdida } from './sessao'
 
+// A API é chamada pelo próprio endereço do site (/api), que a Vercel, o Vite e o nginx repassam para ela.
+// Assim o cookie da sessão é do próprio site, e o Axios manda o token CSRF (cookie XSRF-TOKEN →
+// cabeçalho X-XSRF-TOKEN) sozinho, porque a chamada é para a mesma origem
 export const http = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: '/api',
   // A API no plano gratuito do Render dorme sem uso e leva perto de 1 minuto para acordar
   timeout: 70_000,
-})
-
-http.interceptors.request.use((config) => {
-  const token = lerToken()
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
 })
 
 http.interceptors.response.use(
   (resposta) => resposta,
   (erro) => {
     const normalizado = normalizarErro(erro)
-    // Token expirado ou inválido: encerra a sessão (as rotas protegidas levam ao login)
-    if (normalizado.status === 401 && lerToken()) limparToken()
+    // Cookie da sessão vencido ou inválido: o site passa a mostrar a pessoa como deslogada
+    if (normalizado.status === 401) avisarSessaoPerdida()
     return Promise.reject(normalizado)
   },
 )

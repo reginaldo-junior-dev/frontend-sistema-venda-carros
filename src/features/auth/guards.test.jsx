@@ -11,8 +11,8 @@ const rotas = [
   { path: '/sem-acesso', element: <h1>Sem acesso</h1> },
 ]
 
-function abrir(caminho, perfil) {
-  return renderizar(null, { rotas, caminho, perfil })
+function abrir(caminho, perfil, carregandoSessao = false) {
+  return renderizar(null, { rotas, caminho, perfil, carregandoSessao })
 }
 
 describe('área do cliente', () => {
@@ -20,6 +20,12 @@ describe('área do cliente', () => {
     const { router } = abrir('/conta', null)
     expect(screen.getByRole('heading', { name: 'Entrar' })).toBeInTheDocument()
     expect(router.state.location.search).toBe('?voltar=%2Fconta')
+  })
+
+  it('enquanto a API não diz se há sessão, não manda ninguém para o login', () => {
+    const { router } = abrir('/conta', null, true)
+    expect(router.state.location.pathname).toBe('/conta')
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument()
   })
 
   it('cliente entra', () => {

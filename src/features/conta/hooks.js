@@ -7,8 +7,8 @@ export function useAtualizarMe() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: authApi.atualizarMe,
-    // Mesma chave usada pelo AuthProvider para o usuário logado
-    onSuccess: (usuario) => queryClient.setQueryData(['me', usuario.id], usuario),
+    // A conta logada fica na mesma chave que o AuthProvider lê
+    onSuccess: (usuario) => queryClient.setQueryData(authApi.CHAVE_SESSAO, usuario),
   })
 }
 

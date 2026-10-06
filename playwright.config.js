@@ -1,9 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
 
-// O front sobe apontando para um endereço que não existe: todas as chamadas são respondidas
-// pela API falsa de e2e/api-falsa.js, então os testes não dependem do back-end, do banco nem da Stripe.
+// O site chama a API em /api, e o navegador do teste responde essas chamadas com a API falsa de e2e/api-falsa.js:
+// os testes não dependem do back-end, do banco nem da Stripe.
 const PORTA = 5199
-export const API = 'http://api.e2e'
 
 export default defineConfig({
   testDir: './e2e',
@@ -29,7 +28,7 @@ export default defineConfig({
     url: `http://localhost:${PORTA}`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
-    // Variável do processo tem prioridade sobre os arquivos .env
-    env: { VITE_API_URL: API, VITE_STRIPE_PUBLISHABLE_KEY: '' },
+    // Variável do processo tem prioridade sobre o .env: sem chave da Stripe, como num clone novo
+    env: { VITE_STRIPE_PUBLISHABLE_KEY: '' },
   },
 })

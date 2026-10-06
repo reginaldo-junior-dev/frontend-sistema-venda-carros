@@ -1,9 +1,9 @@
 import { test as base, expect } from '@playwright/test'
-import { API } from '../playwright.config.js'
 
 /**
- * API falsa, com estado em memória por teste. Responde só o que o front usa,
- * no mesmo formato do Spring (página com content/page, ErroResposta com mensagem).
+ * API falsa, com estado em memória por teste. Responde só o que o front usa, em /api (o mesmo endereço do site),
+ * no formato do Spring (página com content/page, ErroResposta com mensagem).
+ * A sessão fica em `perfilLogado`, fazendo o papel do cookie HttpOnly: o site nunca vê token nenhum.
  */
 
 const marcas = [
@@ -32,13 +32,6 @@ export const CARROS = [
   { ...carroBase, id: 'car-civic', nome: 'Civic Touring', modeloId: 'mo-civic', preco: 154900, quilometragem: 18000, anoFabricacao: 2023, anoModelo: 2023, status: 'DISPONIVEL' },
 ]
 
-// JWT de mentira: o front só lê o payload. O id segue o mesmo padrão do GET /usuario/me abaixo
-export function token(perfil) {
-  const sub = `usuario-${perfil.toLowerCase()}`
-  const payload = Buffer.from(JSON.stringify({ sub, perfil, exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64url')
-  return `e2e.${payload}.assinatura`
-}
-
 const pagina = (itens) => ({ content: itens, page: { size: 100, number: 0, totalElements: itens.length, totalPages: 1 } })
 
 export class ApiFalsa {
@@ -57,14 +50,20 @@ export class ApiFalsa {
   }
 
   async instalar(page) {
-    await page.route(`${API}/**`, (rota) => this.responder(rota))
+    await page.route('**/api/**', (rota) => this.responder(rota))
+  }
+
+  // O que a API devolve como "conta logada" para um perfil
+  conta(perfil) {
+    const [email, conta] = Object.entries(this.contas).find(([, c]) => c.perfil === perfil)
+    return { id: `usuario-${perfil.toLowerCase()}`, nomeCompleto: conta.nome, email, perfil, provedor: 'LOCAL' }
   }
 
   async responder(rota) {
     const req = rota.request()
     const url = new URL(req.url())
     const metodo = req.method()
-    const caminho = url.pathname
+    const caminho = url.pathname.replace(/^\/api/, '')
     const json = (corpo, status = 200) => rota.fulfill({ status, json: corpo })
     const erro = (status, mensagem) => json({ status, mensagem, data: new Date().toISOString() }, status)
 
@@ -85,18 +84,18 @@ export class ApiFalsa {
       const conta = this.contas[email]
       if (!conta || conta.senha !== senha) return erro(401, 'Credenciais inválidas')
       this.perfilLogado = conta.perfil
-      return json({ token: token(conta.perfil) })
+      return json(this.conta(conta.perfil))
+    }
+    if (metodo === 'POST' && caminho === '/auth/logout') {
+      this.perfilLogado = null
+      return rota.fulfill({ status: 204 })
     }
 
-    // Daqui em diante exige token
-    const auth = req.headers().authorization
-    if (!auth) return erro(401, 'Não autenticado')
-    const perfil = JSON.parse(Buffer.from(auth.split('.')[1], 'base64url').toString()).perfil
+    // Daqui em diante exige sessão
+    const perfil = this.perfilLogado
+    if (!perfil) return erro(401, 'Autenticação necessária')
 
-    if (metodo === 'GET' && caminho === '/usuario/me') {
-      const conta = Object.entries(this.contas).find(([, c]) => c.perfil === perfil)
-      return json({ id: `usuario-${perfil.toLowerCase()}`, nomeCompleto: conta[1].nome, email: conta[0], perfil })
-    }
+    if (metodo === 'GET' && caminho === '/usuario/me') return json(this.conta(perfil))
     // Mesma regra da API: trocar e-mail ou senha exige a senha atual
     if (metodo === 'PUT' && caminho === '/usuario/me') {
       const corpo = req.postDataJSON()
@@ -106,7 +105,7 @@ export class ApiFalsa {
       }
       if (corpo.novaSenha) conta.senha = corpo.novaSenha
       conta.nome = corpo.nomeCompleto
-      return json({ id: `usuario-${perfil.toLowerCase()}`, nomeCompleto: conta.nome, email, perfil, provedor: 'LOCAL' })
+      return json(this.conta(perfil))
     }
     if (metodo === 'GET' && caminho === '/cliente/me') return perfil === 'USUARIO' ? json(this.cliente) : erro(404, 'Cliente não encontrado')
     if (metodo === 'GET' && ['/cliente/me/favoritos', '/cliente/me/interesses'].includes(caminho)) return json(pagina([]))
@@ -157,7 +156,7 @@ export class ApiFalsa {
 
 /**
  * `api`: a API falsa já instalada na página.
- * `entrarComo(perfil)`: começa o teste com a sessão salva, sem passar pela tela de login.
+ * `entrarComo(perfil)`: começa o teste já logado (como se o cookie da sessão existisse), sem passar pela tela de login.
  */
 export const test = base.extend({
   // auto: instalada em todo teste, mesmo nos que não usam `api` diretamente
@@ -171,9 +170,9 @@ export const test = base.extend({
     },
     { auto: true },
   ],
-  entrarComo: async ({ page }, use) => {
+  entrarComo: async ({ api }, use) => {
     await use(async (perfil) => {
-      await page.addInitScript((t) => localStorage.setItem('patio.token', t), token(perfil))
+      api.perfilLogado = perfil
     })
   },
 })

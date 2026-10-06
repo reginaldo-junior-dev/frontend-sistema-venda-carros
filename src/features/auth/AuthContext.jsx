@@ -1,98 +1,90 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { aoMudarToken, decodificarToken, lerToken, limparToken, salvarToken } from '@/lib/sessao'
+import { aoPerderSessao } from '@/lib/sessao'
 import * as api from './api'
 import { AuthContext } from './contexto'
 
+/**
+ * Sessão do site. O token fica num cookie HttpOnly que o JavaScript não lê:
+ * quem diz se há alguém logado (e quem é) é a API, em GET /usuario/me.
+ */
 export function AuthProvider({ children }) {
   const queryClient = useQueryClient()
-  const [token, setToken] = useState(() => {
-    const salvo = lerToken()
-    if (salvo && !decodificarToken(salvo)) {
-      limparToken()
-      return null
-    }
-    return salvo
-  })
 
-  // Dados pessoais não podem passar de uma sessão para outra (sair, sessão expirada, troca de conta em outra aba).
-  // A limpeza acontece antes da nova renderização, para nenhuma tela ler o cache da pessoa anterior.
-  const usuarioAtual = useRef(token ? decodificarToken(token)?.id : undefined)
-  const aplicarToken = useCallback(
-    (novo) => {
-      const id = novo ? decodificarToken(novo)?.id : undefined
-      if (id !== usuarioAtual.current) {
-        usuarioAtual.current = id
-        queryClient.removeQueries({ queryKey: ['me'] })
-      }
-      setToken(novo)
+  const sessao = useQuery({
+    queryKey: api.CHAVE_SESSAO,
+    queryFn: api.buscarMe,
+    staleTime: 5 * 60_000,
+  })
+  const usuario = sessao.data ?? null
+
+  // Diferencia "saiu pelo botão" de "a sessão expirou": no primeiro caso as rotas protegidas mandam para a home
+  const [saiuPorConta, setSaiuPorConta] = useState(false)
+
+  // Dados pessoais (['me', ...]) não podem passar de uma sessão para outra: limpa antes de trocar a conta
+  const trocarSessao = useCallback(
+    (novoUsuario) => {
+      queryClient.removeQueries({ queryKey: ['me'] })
+      queryClient.setQueryData(api.CHAVE_SESSAO, novoUsuario)
     },
     [queryClient],
   )
 
-  // Mantém o estado em dia quando o interceptor encerra a sessão (401) ou outra aba sai
-  useEffect(() => aoMudarToken(aplicarToken), [aplicarToken])
-  useEffect(() => {
-    const aoMudarStorage = (e) => e.key === 'patio.token' && aplicarToken(e.newValue)
-    window.addEventListener('storage', aoMudarStorage)
-    return () => window.removeEventListener('storage', aoMudarStorage)
-  }, [aplicarToken])
+  // A API respondeu 401: o cookie venceu ou foi apagado
+  useEffect(
+    () =>
+      aoPerderSessao(() => {
+        if (queryClient.getQueryData(api.CHAVE_SESSAO)) trocarSessao(null)
+      }),
+    [queryClient, trocarSessao],
+  )
 
-  const sessao = token ? decodificarToken(token) : null
-  // Diferencia "saiu pelo botão" de "a sessão expirou": no primeiro caso as rotas protegidas mandam para a home
-  const [saiuPorConta, setSaiuPorConta] = useState(false)
-
-  // Encerra a sessão no instante em que o JWT expira
-  useEffect(() => {
-    if (!sessao?.expiraEm) return
-    // setTimeout aceita no máximo ~24 dias
-    const id = setTimeout(limparToken, Math.min(sessao.expiraEm - Date.now(), 2 ** 31 - 1))
-    return () => clearTimeout(id)
-  }, [sessao?.expiraEm])
-
-  const me = useQuery({
-    queryKey: ['me', sessao?.id],
-    queryFn: api.buscarMe,
-    enabled: Boolean(sessao),
-    staleTime: 5 * 60_000,
-  })
-
-  const entrar = useCallback(async (credenciais) => {
-    const novo = await api.entrar(credenciais)
-    setSaiuPorConta(false)
-    salvarToken(novo)
-    return decodificarToken(novo)
-  }, [])
-
-  const entrarComToken = useCallback((novo) => {
-    const dados = decodificarToken(novo)
-    if (dados) {
+  const entrar = useCallback(
+    async (credenciais) => {
+      const conta = await api.entrar(credenciais)
       setSaiuPorConta(false)
-      salvarToken(novo)
-    }
-    return dados
-  }, [])
+      trocarSessao(conta)
+      return conta
+    },
+    [trocarSessao],
+  )
 
-  const sair = useCallback(() => {
+  // Depois do login Google: a API já gravou o cookie, falta saber de quem é a conta
+  const recarregarSessao = useCallback(async () => {
+    const conta = await queryClient.fetchQuery({ queryKey: api.CHAVE_SESSAO, queryFn: api.buscarMe, staleTime: 0 })
+    if (conta) {
+      setSaiuPorConta(false)
+      trocarSessao(conta)
+    }
+    return conta
+  }, [queryClient, trocarSessao])
+
+  // Mesmo se a API não responder, a pessoa sai na tela; o cookie vence sozinho em até 1 hora
+  const sair = useCallback(async () => {
     setSaiuPorConta(true)
-    limparToken()
-  }, [])
+    try {
+      await api.sair()
+    } finally {
+      trocarSessao(null)
+    }
+  }, [trocarSessao])
 
   const valor = useMemo(
     () => ({
-      estaLogado: Boolean(sessao),
-      ehAdmin: sessao?.perfil === 'ADMINISTRADOR',
+      estaLogado: Boolean(usuario),
+      ehAdmin: usuario?.perfil === 'ADMINISTRADOR',
       // Cliente é quem compra, favorita e fala com a equipe; o admin só opera o painel
-      ehCliente: Boolean(sessao) && sessao.perfil !== 'ADMINISTRADOR',
-      perfil: sessao?.perfil ?? null,
-      usuario: me.data ?? null,
-      carregandoUsuario: me.isPending && me.fetchStatus !== 'idle',
+      ehCliente: Boolean(usuario) && usuario.perfil !== 'ADMINISTRADOR',
+      perfil: usuario?.perfil ?? null,
+      usuario,
+      // Enquanto a API não responde, ninguém sabe se há sessão: as rotas protegidas esperam
+      carregandoSessao: sessao.isPending,
       saiuPorConta,
       entrar,
-      entrarComToken,
+      recarregarSessao,
       sair,
     }),
-    [sessao, me.data, me.isPending, me.fetchStatus, saiuPorConta, entrar, entrarComToken, sair],
+    [usuario, sessao.isPending, saiuPorConta, entrar, recarregarSessao, sair],
   )
 
   return <AuthContext value={valor}>{children}</AuthContext>

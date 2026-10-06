@@ -1,8 +1,7 @@
 import { AxiosError } from 'axios'
-import { afterEach, describe, expect, it } from 'vitest'
-import { criarToken } from '@/test/utils'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { http, lerPagina, limparParams } from './http'
-import { lerToken, salvarToken } from './sessao'
+import { aoPerderSessao } from './sessao'
 
 const adapterOriginal = http.defaults.adapter
 afterEach(() => {
@@ -43,24 +42,25 @@ describe('erros da API', () => {
     await expect(http.get('/carro')).rejects.toMatchObject({ status: 0, message: expect.stringContaining('conectar') })
   })
 
-  it('401 encerra a sessão', async () => {
-    salvarToken(criarToken())
+  it('401 avisa que a sessão acabou', async () => {
+    const aviso = vi.fn()
+    const parar = aoPerderSessao(aviso)
     responder(401, null)
     await expect(http.get('/usuario/me')).rejects.toMatchObject({ status: 401 })
-    expect(lerToken()).toBeNull()
+    expect(aviso).toHaveBeenCalledOnce()
+    parar()
   })
 })
 
-it('envia o token no cabeçalho', async () => {
-  const token = criarToken()
-  salvarToken(token)
-  let cabecalho
+it('chama a API pelo próprio site, sem token no cabeçalho (a sessão vai no cookie)', async () => {
+  let pedido
   http.defaults.adapter = async (config) => {
-    cabecalho = config.headers.Authorization
+    pedido = config
     return { data: {}, status: 200, statusText: 'OK', headers: {}, config }
   }
   await http.get('/usuario/me')
-  expect(cabecalho).toBe(`Bearer ${token}`)
+  expect(pedido.baseURL).toBe('/api')
+  expect(pedido.headers.Authorization).toBeUndefined()
 })
 
 it('lerPagina converte a página do Spring', () => {
