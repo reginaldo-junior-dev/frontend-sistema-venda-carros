@@ -14,7 +14,7 @@ const PUBLICAS = [
   ['/carros', 'Carros à venda'],
   ['/carros/car-corolla', 'Corolla XEi'],
   ['/entrar', 'Entre na sua conta'],
-  ['/criar-conta', /conta/],
+  ['/criar-conta', 'Crie sua conta'],
 ]
 
 for (const [caminho, titulo] of PUBLICAS) {
@@ -37,24 +37,24 @@ test.describe('tema escuro', () => {
   test('acessibilidade do estoque no painel', async ({ page, entrarComo }) => {
     await entrarComo('ADMINISTRADOR')
     await page.goto('/admin/carros')
-    await verificar(page, /.+/)
+    await verificar(page, 'Estoque')
   })
 })
 
 test('acessibilidade da área do cliente', async ({ page, entrarComo }) => {
   await entrarComo('USUARIO')
   await page.goto('/conta')
-  await verificar(page, /dados/i)
+  await verificar(page, 'Meus dados')
   await page.goto('/conta/compras')
-  await verificar(page, /compras/i)
+  await verificar(page, 'Minhas compras')
 })
 
 test('acessibilidade do painel', async ({ page, entrarComo }) => {
   await entrarComo('ADMINISTRADOR')
   await page.goto('/admin')
-  await verificar(page, /.+/)
+  await verificar(page, 'Resumo')
   await page.goto('/admin/carros')
-  await verificar(page, /.+/)
+  await verificar(page, 'Estoque')
 })
 
 test('dá para chegar ao carro e reservar só com o teclado', async ({ page, entrarComo, isMobile }) => {
@@ -67,7 +67,7 @@ test('dá para chegar ao carro e reservar só com o teclado', async ({ page, ent
   await page.keyboard.press('Tab')
   await expect(page.getByRole('link', { name: 'Pular para o conteúdo' })).toBeFocused()
 
-  // Tab até o card do carro, com foco sempre visível no elemento ativo
+  // Tab até o link do card do carro (o limite evita laço infinito se ele nunca receber foco)
   for (let i = 0; i < 40; i++) {
     await page.keyboard.press('Tab')
     if (await page.getByRole('link', { name: 'Corolla XEi' }).evaluate((el) => el === document.activeElement)) break

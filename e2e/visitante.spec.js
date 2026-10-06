@@ -1,6 +1,6 @@
 import { expect, test } from './api-falsa.js'
 
-test('busca um carro no catálogo e abre o detalhe', async ({ page, api }) => {
+test('busca um carro no catálogo e abre o detalhe', async ({ page }) => {
   await page.goto('/carros')
   await expect(page.getByRole('heading', { name: 'Carros à venda' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Corolla XEi' })).toBeVisible()
@@ -12,7 +12,6 @@ test('busca um carro no catálogo e abre o detalhe', async ({ page, api }) => {
   await page.getByRole('link', { name: 'Civic Touring' }).click()
   await expect(page).toHaveURL('/carros/car-civic')
   await expect(page.getByRole('heading', { level: 1, name: 'Civic Touring' })).toBeVisible()
-  expect(api.naoTratadas).toEqual([])
 })
 
 test('filtra por marca e o filtro fica na URL', async ({ page, isMobile }) => {

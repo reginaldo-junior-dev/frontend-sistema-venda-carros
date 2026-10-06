@@ -1,10 +1,9 @@
 import { screen } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { renderizar } from '@/test/utils'
 import { PainelCompra } from './PainelCompra'
 
-// Sem rede: as listas do cliente vêm vazias
-// vi.mock sobe para o topo do arquivo: a função precisa existir antes dele
+// Sem rede: as listas do cliente vêm vazias (vi.hoisted porque vi.mock sobe para o topo do arquivo)
 const { vazio } = vi.hoisted(() => ({ vazio: async () => [] }))
 vi.mock('@/features/favoritos/api', async (original) => ({ ...(await original()), listarFavoritos: vazio }))
 vi.mock('@/features/interesses/api', async (original) => ({ ...(await original()), listarMeusInteresses: vazio }))
@@ -18,8 +17,6 @@ const carro = { id: 'c1', nome: 'Corolla XEi', preco: 150000, quilometragem: 0, 
 const d = { marca: 'Toyota', modelo: 'Corolla', anos: '2025' }
 
 describe('PainelCompra', () => {
-  beforeEach(() => vi.clearAllMocks())
-
   it('cliente pode reservar, favoritar e falar com a equipe', () => {
     renderizar(<PainelCompra carro={carro} d={d} />, { perfil: 'USUARIO' })
     expect(screen.getByRole('button', { name: 'Reservar carro' })).toBeEnabled()

@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["react", "oxc"],
+  "ignorePatterns": ["dist*/**"],
   "rules": {
     "react/rules-of-hooks": "error",
     "react/only-export-components": ["warn", { "allowConstantExport": true }]
@@ -8,10 +9,7 @@
   "overrides": [
     {
       "files": ["e2e/**"],
-      "rules": {
-        "react/rules-of-hooks": "off",
-        "react-hooks/rules-of-hooks": "off"
-      }
+      "rules": { "react/rules-of-hooks": "off" }
     }
   ]
 }

@@ -16,6 +16,5 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.js',
     include: ['src/**/*.test.{js,jsx}'],
-    env: { VITE_API_URL: 'http://api.teste' },
   },
 })

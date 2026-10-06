@@ -14,20 +14,14 @@ export function criarQueryClient() {
   return new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
 }
 
-// Sessão falsa para componentes que leem useAuth()
-export function sessao(perfil) {
+// Sessão falsa com o que os componentes testados leem de useAuth() (guards, PainelCompra, BotaoFavorito, hooks)
+function sessao(perfil) {
   const logado = Boolean(perfil)
   return {
     estaLogado: logado,
     ehAdmin: perfil === 'ADMINISTRADOR',
     ehCliente: logado && perfil !== 'ADMINISTRADOR',
-    perfil: perfil ?? null,
-    usuario: logado ? { nomeCompleto: 'Ana Souza', email: 'ana@exemplo.com' } : null,
-    carregandoUsuario: false,
     saiuPorConta: false,
-    entrar: async () => {},
-    entrarComToken: () => null,
-    sair: () => {},
   }
 }
 
@@ -35,9 +29,10 @@ export function sessao(perfil) {
  * Renderiza dentro de um roteador em memória com sessão e cache próprios.
  * `rotas` permite montar guards; sem elas, `ui` vira a única rota em `caminho`.
  */
-export function renderizar(ui, { perfil, caminho = '/', rotas, queryClient = criarQueryClient(), exigirCliente } = {}) {
+export function renderizar(ui, { perfil, caminho = '/', rotas, queryClient = criarQueryClient() } = {}) {
   const router = createMemoryRouter(rotas ?? [{ path: '*', element: ui }], { initialEntries: [caminho] })
-  const cadastro = { exigirCliente: exigirCliente ?? ((acao) => acao()) }
+  // Cadastro de comprador já feito: a ação pedida roda direto
+  const cadastro = { exigirCliente: (acao) => acao() }
   const resultado = render(
     <QueryClientProvider client={queryClient}>
       <AuthContext value={sessao(perfil)}>

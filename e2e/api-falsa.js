@@ -23,7 +23,6 @@ const carroBase = {
   condicao: 'USADO',
   combustivel: 'FLEX',
   cambio: 'AUTOMATICO',
-  portas: 4,
   descricao: 'Único dono, revisões na concessionária.',
   imagens: [],
 }
@@ -33,8 +32,9 @@ export const CARROS = [
   { ...carroBase, id: 'car-civic', nome: 'Civic Touring', modeloId: 'mo-civic', preco: 154900, quilometragem: 18000, anoFabricacao: 2023, anoModelo: 2023, status: 'DISPONIVEL' },
 ]
 
-// JWT de mentira: o front só lê o payload
-export function token(perfil = 'USUARIO', sub = `usuario-${perfil.toLowerCase()}`) {
+// JWT de mentira: o front só lê o payload. O id segue o mesmo padrão do GET /usuario/me abaixo
+function token(perfil) {
+  const sub = `usuario-${perfil.toLowerCase()}`
   const payload = Buffer.from(JSON.stringify({ sub, perfil, exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64url')
   return `e2e.${payload}.assinatura`
 }
@@ -44,7 +44,7 @@ const pagina = (itens) => ({ content: itens, page: { size: 100, number: 0, total
 export class ApiFalsa {
   constructor() {
     this.carros = structuredClone(CARROS)
-    this.cliente = { id: 'cli-1', usuarioId: 'usuario-usuario', cpf: '12345678909', dataNascimento: '1990-05-10', telefone: '11987654321' }
+    this.cliente = { id: 'cli-1', cpf: '12345678909', dataNascimento: '1990-05-10', telefone: '11987654321' }
     this.compras = []
     this.pagamentos = []
     this.naoTratadas = []
