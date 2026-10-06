@@ -1,5 +1,6 @@
 // Prazo da reserva sem pagamento; precisa bater com compra.expiracao.tempo da API
-export const MINUTOS_RESERVA = Number(import.meta.env.VITE_RESERVA_MINUTOS ?? 30)
+// Variável vazia ou inválida cai no padrão, em vez de virar 0 ou NaN
+export const MINUTOS_RESERVA = Number(import.meta.env.VITE_RESERVA_MINUTOS) || 30
 
 // dataCompra vem como LocalDateTime (sem fuso): lida no fuso do navegador, o mesmo da loja
 export function expiraEm(compra) {

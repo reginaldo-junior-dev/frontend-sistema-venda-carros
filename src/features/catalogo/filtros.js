@@ -37,7 +37,8 @@ export function lerFiltros(params) {
   return {
     filtros,
     ordem: params.get('ordem') ?? 'relevancia',
-    pagina: Math.max(0, Number(params.get('pagina') ?? 1) - 1),
+    // Página inválida na URL ("abc", "-3") vira a primeira
+    pagina: Math.max(0, (Number.parseInt(params.get('pagina'), 10) || 1) - 1),
     // Por padrão só aparecem os disponíveis; "todos" inclui reservados e vendidos
     incluirIndisponiveis: params.get('todos') === '1',
   }

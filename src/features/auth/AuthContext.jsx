@@ -1,10 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { aoMudarToken, decodificarToken, lerToken, limparToken, salvarToken } from '@/lib/sessao'
 import * as api from './api'
-
 import { AuthContext } from './contexto'
-
 
 export function AuthProvider({ children }) {
   const queryClient = useQueryClient()
@@ -17,13 +15,28 @@ export function AuthProvider({ children }) {
     return salvo
   })
 
+  // Dados pessoais não podem passar de uma sessão para outra (sair, sessão expirada, troca de conta em outra aba).
+  // A limpeza acontece antes da nova renderização, para nenhuma tela ler o cache da pessoa anterior.
+  const usuarioAtual = useRef(token ? decodificarToken(token)?.id : undefined)
+  const aplicarToken = useCallback(
+    (novo) => {
+      const id = novo ? decodificarToken(novo)?.id : undefined
+      if (id !== usuarioAtual.current) {
+        usuarioAtual.current = id
+        queryClient.removeQueries({ queryKey: ['me'] })
+      }
+      setToken(novo)
+    },
+    [queryClient],
+  )
+
   // Mantém o estado em dia quando o interceptor encerra a sessão (401) ou outra aba sai
-  useEffect(() => aoMudarToken(setToken), [])
+  useEffect(() => aoMudarToken(aplicarToken), [aplicarToken])
   useEffect(() => {
-    const aoMudarStorage = (e) => e.key === 'patio.token' && setToken(e.newValue)
+    const aoMudarStorage = (e) => e.key === 'patio.token' && aplicarToken(e.newValue)
     window.addEventListener('storage', aoMudarStorage)
     return () => window.removeEventListener('storage', aoMudarStorage)
-  }, [])
+  }, [aplicarToken])
 
   const sessao = token ? decodificarToken(token) : null
   // Diferencia "saiu pelo botão" de "a sessão expirou": no primeiro caso as rotas protegidas mandam para a home
@@ -63,9 +76,7 @@ export function AuthProvider({ children }) {
   const sair = useCallback(() => {
     setSaiuPorConta(true)
     limparToken()
-    // Dados pessoais não podem sobreviver à troca de usuário
-    queryClient.removeQueries({ queryKey: ['me'] })
-  }, [queryClient])
+  }, [])
 
   const valor = useMemo(
     () => ({

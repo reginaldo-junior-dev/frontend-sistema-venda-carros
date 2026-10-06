@@ -9,7 +9,7 @@ import { InputSenha } from '@/components/ui/input-senha'
 import { Campo } from '@/components/shared/Campo'
 import { AuthLayout } from './AuthLayout'
 import { BotaoGoogle, Separador } from './BotaoGoogle'
-import { destinoSeguro } from './destino'
+import { destinoAposEntrar } from './destino'
 import { useAuth } from './useAuth'
 
 const esquema = z.object({
@@ -18,11 +18,10 @@ const esquema = z.object({
 })
 
 export default function EntrarPage() {
-  const { estaLogado, entrar } = useAuth()
+  const { estaLogado, perfil, entrar } = useAuth()
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const voltar = params.get('voltar')
-  const destino = destinoSeguro(voltar)
 
   const {
     register,
@@ -31,13 +30,14 @@ export default function EntrarPage() {
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(esquema), defaultValues: { email: '', senha: '' } })
 
-  if (estaLogado) return <Navigate to={destino} replace />
+  // Já logado (ou acabou de entrar): mesmo destino do envio do formulário
+  if (estaLogado) return <Navigate to={destinoAposEntrar(voltar, perfil)} replace />
 
   async function enviar(valores) {
     try {
-      await entrar(valores)
+      const sessao = await entrar(valores)
       toast.success('Você entrou na sua conta.')
-      navigate(destino, { replace: true })
+      navigate(destinoAposEntrar(voltar, sessao?.perfil), { replace: true })
     } catch (erro) {
       // Credenciais erradas voltam como 401/403, sem dizer qual campo errou
       setError('root', {

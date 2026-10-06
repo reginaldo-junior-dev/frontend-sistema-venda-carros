@@ -3,7 +3,8 @@ import { lerToken, limparToken } from './sessao'
 
 export const http = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  timeout: 20000,
+  // A API no plano gratuito do Render dorme sem uso e leva perto de 1 minuto para acordar
+  timeout: 70_000,
 })
 
 http.interceptors.request.use((config) => {

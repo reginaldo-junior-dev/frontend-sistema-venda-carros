@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
+import { destinoAposEntrar } from './destino'
 import { useAuth } from './useAuth'
 
 // Destino do login Google: a API redireciona para cá com ?token=
@@ -13,10 +14,10 @@ export default function OAuthCallbackPage() {
   useEffect(() => {
     if (tratado.current) return
     tratado.current = true
-    const ok = entrarComToken(params.get('token') ?? '')
-    if (ok) {
+    const sessao = entrarComToken(params.get('token') ?? '')
+    if (sessao) {
       toast.success('Você entrou com sua conta Google.')
-      navigate('/', { replace: true })
+      navigate(destinoAposEntrar(null, sessao.perfil), { replace: true })
     } else {
       toast.error('Não foi possível entrar com o Google. Tente de novo ou use e-mail e senha.')
       navigate('/entrar', { replace: true })

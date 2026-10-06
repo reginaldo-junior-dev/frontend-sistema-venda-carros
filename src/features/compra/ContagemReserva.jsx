@@ -38,7 +38,7 @@ export function ContagemReserva({ compra, compacta = false }) {
           {doisDigitos(minutos)}:{doisDigitos(segundos)}
         </span>
         <span className="sr-only" aria-live="polite">
-          {acabou ? 'O prazo da reserva acabou.' : `Faltam ${minutos + 1} minutos para pagar.`}
+          {acabou ? 'O prazo da reserva acabou.' : `Faltam ${Math.ceil(restante / 60_000)} minutos para pagar.`}
         </span>
       </div>
       <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-asfalto/10" aria-hidden="true">
