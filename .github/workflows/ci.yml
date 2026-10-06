@@ -1,0 +1,46 @@
+# Roda lint e todos os testes a cada push e pull request na main.
+# O resultado aparece como ✓ ou ✗ ao lado de cada commit no GitHub.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      # Mesma versão principal do Node usada no desenvolvimento (o Vite 8 pede 20.19+ ou 22.12+)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Testes unitários e de componente
+        run: npm test
+
+      # Só o Chromium, que é o navegador usado nos projetos desktop e celular do playwright.config.js
+      - name: Instala o navegador dos testes de ponta a ponta
+        run: npx playwright install --with-deps chromium
+
+      - name: Testes de ponta a ponta
+        run: npm run test:e2e
+
+      # Relatório com o trace (passo a passo) do que falhou, para baixar na página da execução
+      - name: Guarda o relatório quando algum teste falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-playwright
+          path: playwright-report/
+          retention-days: 7
