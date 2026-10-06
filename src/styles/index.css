@@ -24,7 +24,8 @@
   --marca-suave: #dbe4f4;
   --sinal: #e8a317;
   --sinal-texto: #1e2428;
-  --livre: #1f7a4d;
+  /* Escurecido de #1f7a4d: o texto do selo "Disponível" sobre o fundo verde claro precisa de 4,5:1 */
+  --livre: #1a6b43;
   --vendido: #b3261e;
   --foco: #0b3d91;
   /* Cor das marcas de gráfico: validada (dataviz) na faixa de luminosidade e contraste do tema */

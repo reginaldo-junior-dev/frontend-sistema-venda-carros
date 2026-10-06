@@ -128,7 +128,7 @@ export default function EstoquePage() {
                           </Link>
                           <span className="text-texto-suave">
                             {[d.marca, d.modelo].filter(Boolean).join(' ')}
-                            {carro.imagens.length === 0 && <span className="ml-2 text-sinal-texto">sem fotos</span>}
+                            {carro.imagens.length === 0 && <span className="ml-2 text-texto">sem fotos</span>}
                           </span>
                         </div>
                       </div>

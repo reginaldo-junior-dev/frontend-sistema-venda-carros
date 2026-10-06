@@ -130,7 +130,7 @@ function Pendencia({ icone: Icone, quantidade, carregando, texto, vazio, link, a
         tem ? 'border-sinal/50 bg-sinal/10' : 'border-borda',
       )}
     >
-      <Icone className={cn('size-5 shrink-0', tem ? 'text-sinal-texto' : 'text-texto-suave')} aria-hidden="true" />
+      <Icone className={cn('size-5 shrink-0', tem ? 'text-texto' : 'text-texto-suave')} aria-hidden="true" />
       <p className="min-w-[12rem] flex-1 text-sm">
         {carregando ? (
           'Carregando…'

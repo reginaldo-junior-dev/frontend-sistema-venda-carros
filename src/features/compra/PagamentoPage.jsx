@@ -308,7 +308,7 @@ function AguardandoEquipe({ pagamento }) {
   const metodo = METODO_PAGAMENTO[pagamento?.metodo] ?? 'Pix ou boleto'
   return (
     <div className="flex flex-col items-start gap-5">
-      <span className="flex size-14 items-center justify-center rounded-full bg-sinal/15 text-sinal-texto">
+      <span className="flex size-14 items-center justify-center rounded-full bg-sinal/15 text-texto">
         <Clock className="size-7" aria-hidden="true" />
       </span>
       <h1 className="tipo-emblema text-h2">Aguardando a confirmação do pagamento.</h1>
