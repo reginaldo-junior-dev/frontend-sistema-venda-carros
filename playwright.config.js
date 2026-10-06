@@ -11,6 +11,8 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
+  // Mais folga que os 5 s padrão: a verificação de acessibilidade é pesada e a máquina pode estar ocupada
+  expect: { timeout: 10_000 },
   use: {
     baseURL: `http://localhost:${PORTA}`,
     locale: 'pt-BR',

@@ -4,6 +4,14 @@ import { expect, test } from './api-falsa.js'
 // Regras WCAG 2.1 A e AA; cada tela é verificada depois de carregar os dados
 async function verificar(page, titulo) {
   await expect(page.getByRole('heading', { level: 1, name: titulo })).toBeVisible()
+  // Elementos que entram com fade (ex.: busca da home) teriam o contraste medido ainda semitransparentes.
+  // Só as animações por tempo terminam: as ligadas à rolagem e as sem fim (esqueleto) ficam de fora
+  await page.waitForFunction(() =>
+    document
+      .getAnimations()
+      .filter((a) => a.timeline instanceof DocumentTimeline && a.effect?.getTiming().iterations !== Infinity)
+      .every((a) => a.playState !== 'running'),
+  )
   const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
   const resumo = violations.map((v) => `${v.id} (${v.impact}): ${v.help} → ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)
   expect(resumo, `problemas de acessibilidade em ${page.url()}`).toEqual([])
