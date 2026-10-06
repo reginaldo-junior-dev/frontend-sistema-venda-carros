@@ -33,7 +33,7 @@ export const CARROS = [
 ]
 
 // JWT de mentira: o front só lê o payload. O id segue o mesmo padrão do GET /usuario/me abaixo
-function token(perfil) {
+export function token(perfil) {
   const sub = `usuario-${perfil.toLowerCase()}`
   const payload = Buffer.from(JSON.stringify({ sub, perfil, exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64url')
   return `e2e.${payload}.assinatura`
