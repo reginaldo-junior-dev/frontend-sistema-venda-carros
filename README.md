@@ -51,6 +51,7 @@ Outros cuidados do projeto:
 - **Acessibilidade**: uso pelo teclado, título próprio em cada página e verificação automática (WCAG 2.1 AA, com axe) das páginas principais nos temas claro e escuro.
 - **Tema claro e escuro**, seguindo o sistema ou escolhido no botão do cabeçalho.
 - **Desempenho**: cada página é carregada sob demanda, as fotos têm versões em vários tamanhos e o painel da revenda não pesa para quem só compra.
+- **Sessão segura**: o login fica num cookie `HttpOnly`, que nenhum JavaScript lê (nem um script injetado), com proteção contra CSRF. O site chama a API pelo próprio endereço (`/api`), por isso o cookie é do próprio site e funciona em todos os navegadores.
 
 ---
 
@@ -90,8 +91,8 @@ Outros cuidados do projeto:
 2. **Crie o arquivo `.env`** na raiz do projeto (ele não vai para o Git):
 
    ```env
-   # URL da API Spring Boot, sem barra no final
-   VITE_API_URL=http://localhost:8080
+   # Para onde o Vite repassa as chamadas de /api (a API Spring Boot), sem barra no final
+   API_URL=http://localhost:8080
 
    # Chave publicável da Stripe (pk_test_... em desenvolvimento). Opcional
    VITE_STRIPE_PUBLISHABLE_KEY=
@@ -105,17 +106,17 @@ Outros cuidados do projeto:
    npm run dev
    ```
 
-   Abra **http://localhost:5173**. Use essa porta: é a que a API libera por padrão (CORS) e para onde ela devolve o login com Google.
+   Abra **http://localhost:5173**. O site chama a API em `/api/...` no próprio endereço, e o Vite repassa essas chamadas para o `API_URL`. Use essa porta: é para ela que a API devolve o login com Google.
 
 ---
 
 ## Variáveis de ambiente
 
-O Vite grava essas variáveis no JavaScript **na hora do build**. Mudou o valor, reinicie o `npm run dev` (ou gere o build de novo).
+As variáveis `VITE_*` são gravadas no JavaScript **na hora do build**. Mudou o valor, reinicie o `npm run dev` (ou gere o build de novo).
 
 | Variável | Obrigatória | Para que serve |
 |---|---|---|
-| `VITE_API_URL` | Sim | Endereço da API, sem barra no final. Ex.: `http://localhost:8080` |
+| `API_URL` | Não | Para onde o `npm run dev` e o `npm run preview` repassam as chamadas de `/api` (padrão: `http://localhost:8080`). Não vai para o JavaScript do site. |
 | `VITE_STRIPE_PUBLISHABLE_KEY` | Não | Chave **publicável** da Stripe (`pk_test_...` ou `pk_live_...`). Sem ela, o pagamento com cartão mostra um aviso e Pix e boleto continuam funcionando. |
 | `VITE_RESERVA_MINUTOS` | Não | Quantos minutos a reserva dura sem pagamento (padrão: `30`). Precisa ser igual ao `compra.expiracao.tempo` da API, senão a contagem na tela fica errada. |
 
@@ -145,16 +146,16 @@ Para rodar o site sem instalar o Node. A imagem gera o build e serve os arquivos
 docker compose up --build
 ```
 
-O site fica em **http://localhost:5173**, apontando para a API em `http://localhost:8080`. A API sobe pelo `compose.yaml` do repositório dela.
+O site fica em **http://localhost:5173**. O nginx da imagem repassa as chamadas de `/api` para a API em `http://localhost:8080` da sua máquina, que sobe pelo `compose.yaml` do repositório dela.
 
-Para apontar para outra API ou usar uma chave da Stripe, defina as variáveis no `.env` antes do build (ou no terminal):
+Para apontar para outra API ou usar uma chave da Stripe, defina no `.env`:
 
 ```env
-VITE_API_URL=http://localhost:8080
+API_URL=http://host.docker.internal:8080
 VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
 ```
 
-Como os valores entram no build, depois de mudá-los rode de novo com `--build`.
+O `API_URL` vale ao subir o container. A chave da Stripe entra no build: depois de mudá-la, rode de novo com `--build`.
 
 ---
 
@@ -184,9 +185,14 @@ Sem ele, a API ainda confere esses pagamentos direto na Stripe a cada minuto, en
 
 ## Login com Google
 
-O botão "Continuar com Google" leva para a API, que faz o login com o Google e devolve a pessoa para `/oauth/callback` no site, já com a sessão.
+O botão "Continuar com Google" leva para a API (pelo `/api` do site), que faz o login com o Google, grava o cookie da sessão e devolve a pessoa para `/oauth/callback`. Essa página só pergunta à API quem entrou e segue para a home, ou para o painel se for administrador.
 
-Para funcionar, a API precisa das credenciais do Google configuradas. Veja o README da API. Sem elas, o login com e-mail e senha continua funcionando normalmente.
+Para funcionar, a API precisa das credenciais do Google configuradas (veja o README da API), e o endereço de retorno cadastrado no Google Cloud passa pelo site:
+
+- em desenvolvimento: `http://localhost:5173/api/login/oauth2/code/google`;
+- em produção: `https://<seu-site>.vercel.app/api/login/oauth2/code/google`.
+
+Sem as credenciais, o login com e-mail e senha continua funcionando normalmente.
 
 ---
 
@@ -207,7 +213,7 @@ O painel fica em **`/admin`** e só abre para contas de administrador. O cadastr
    docker compose exec db psql -U venda_carros -d venda_carros -c "UPDATE usuario SET perfil = 'ADMINISTRADOR' WHERE email = 'seu@email.com';"
    ```
 
-3. **Saia e entre de novo** no site: o perfil vem dentro do token de login, que só é renovado ao entrar.
+3. **Recarregue a página**: a API confere o perfil no banco a cada requisição, e o site busca a conta de novo ao carregar.
 
 Ao entrar como administrador, o site leva direto para o painel.
 
@@ -226,7 +232,7 @@ npm run test:e2e    # ponta a ponta
 - visitante buscando e filtrando carros;
 - cliente reservando e pagando com Pix;
 - administrador entrando no painel;
-- volta do login com Google;
+- saída da conta e volta do login com Google;
 - verificação de acessibilidade com axe em todas as páginas principais, nos temas claro e escuro.
 
 Esses testes **não precisam da API**: eles usam uma API simulada (`e2e/api-falsa.js`) e rodam contra o build de produção. Na primeira vez, instale o navegador usado por eles:
@@ -272,14 +278,15 @@ Cada pasta de `features/` segue o mesmo padrão: `api.js` com as chamadas HTTP, 
 ## Deploy na Vercel
 
 1. Importe o repositório na [Vercel](https://vercel.com). Ela reconhece o Vite sozinha (build `npm run build`, pasta `dist`).
-2. Em **Settings → Environment Variables**, cadastre:
-   - `VITE_API_URL`: URL **https** da API publicada (ex.: `https://sua-api.onrender.com`);
-   - `VITE_STRIPE_PUBLISHABLE_KEY`: `pk_test_...` enquanto o site estiver em teste, `pk_live_...` para cobrar de verdade.
-3. Na API publicada, configure `FRONTEND_URL` com o endereço do site na Vercel (sem barra no final). Sem isso, a API bloqueia as chamadas do site (CORS) e o login com Google não volta para ele.
+2. No `vercel.json`, troque `SUA-API.onrender.com` pelo endereço da API no Render. É por ele que a Vercel repassa as chamadas de `/api`. O build na Vercel **falha de propósito** enquanto o endereço de exemplo estiver lá.
+3. Em **Settings → Environment Variables**, cadastre `VITE_STRIPE_PUBLISHABLE_KEY`: `pk_test_...` enquanto o site estiver em teste, `pk_live_...` para cobrar de verdade.
+4. Na API publicada, configure `FRONTEND_URL` com o endereço do site na Vercel (sem barra no final), para o login com Google voltar para ele.
 
-O build na Vercel **falha de propósito** se `VITE_API_URL` não for uma URL `https://`, para não publicar um site apontando para `localhost`.
-
-O `vercel.json` faz as rotas do site (`/carros/123`, `/conta`...) abrirem direto pelo link e deixa os arquivos de `/assets` em cache por um ano.
+O que o `vercel.json` faz:
+- repassa `/api/...` para a API, **sem guardar as respostas em cache**, porque elas trazem dados de quem está logado;
+- faz as rotas do site (`/carros/123`, `/conta`...) abrirem direto pelo link;
+- deixa os arquivos de `/assets` em cache por um ano;
+- adiciona os cabeçalhos de segurança.
 
 ---
 
