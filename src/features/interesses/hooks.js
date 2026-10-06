@@ -7,8 +7,8 @@ const CHAVE = ['me', 'interesses']
 
 // Ids dos carros em que a pessoa já registrou interesse (para não pedir duas vezes)
 export function useMeusInteresses() {
-  const { estaLogado } = useAuth()
-  const consulta = useQuery({ queryKey: CHAVE, queryFn: api.listarMeusInteresses, enabled: estaLogado })
+  const { ehCliente } = useAuth()
+  const consulta = useQuery({ queryKey: CHAVE, queryFn: api.listarMeusInteresses, enabled: ehCliente })
   const carroIds = useMemo(() => new Set((consulta.data ?? []).map((i) => i.carroId)), [consulta.data])
   return { ...consulta, carroIds }
 }

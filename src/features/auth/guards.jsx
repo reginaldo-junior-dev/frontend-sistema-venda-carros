@@ -20,3 +20,10 @@ export function RotaAdmin() {
   if (!ehAdmin) return <Navigate to="/sem-acesso" replace />
   return <Outlet />
 }
+
+// Favoritos, interesses, compras e pagamento são do cliente: o admin volta para o painel
+export function RotaCliente() {
+  const { ehAdmin } = useAuth()
+  if (ehAdmin) return <Navigate to="/admin" replace />
+  return <Outlet />
+}

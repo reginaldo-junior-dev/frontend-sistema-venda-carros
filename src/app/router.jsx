@@ -1,5 +1,5 @@
 import { createBrowserRouter } from 'react-router'
-import { RotaAdmin, RotaAutenticada } from '@/features/auth/guards'
+import { RotaAdmin, RotaAutenticada, RotaCliente } from '@/features/auth/guards'
 import { AdminLayout } from './layouts/AdminLayout'
 import { ContaLayout } from './layouts/ContaLayout'
 import { SiteLayout } from './layouts/SiteLayout'
@@ -32,18 +32,23 @@ export const router = createBrowserRouter([
             element: <RotaAutenticada />,
             children: [
               {
-                path: 'conta',
-                element: <ContaLayout />,
+                element: <RotaCliente />,
                 children: [
-                  { index: true, lazy: pagina(() => import('@/features/conta/MeusDadosPage')) },
-                  { path: 'favoritos', lazy: pagina(() => import('@/features/conta/FavoritosPage')) },
-                  { path: 'interesses', lazy: pagina(() => import('@/features/conta/InteressesPage')) },
-                  { path: 'compras', lazy: pagina(() => import('@/features/compra/MinhasComprasPage')) },
+                  {
+                    path: 'conta',
+                    element: <ContaLayout />,
+                    children: [
+                      { index: true, lazy: pagina(() => import('@/features/conta/MeusDadosPage')) },
+                      { path: 'favoritos', lazy: pagina(() => import('@/features/conta/FavoritosPage')) },
+                      { path: 'interesses', lazy: pagina(() => import('@/features/conta/InteressesPage')) },
+                      { path: 'compras', lazy: pagina(() => import('@/features/compra/MinhasComprasPage')) },
+                    ],
+                  },
+                  {
+                    path: 'conta/compras/:id/pagamento',
+                    lazy: pagina(() => import('@/features/compra/PagamentoPage')),
+                  },
                 ],
-              },
-              {
-                path: 'conta/compras/:id/pagamento',
-                lazy: pagina(() => import('@/features/compra/PagamentoPage')),
               },
             ],
           },

@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { Check, Share2, Timer } from 'lucide-react'
+import { Check, Pencil, Share2, Timer } from 'lucide-react'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Plaqueta } from '@/components/shared/Plaqueta'
 import { Preco } from '@/components/shared/Preco'
+import { useAuth } from '@/features/auth/useAuth'
 import { useExigirCliente } from '@/features/cliente/useExigirCliente'
 import { useMinhasCompras, useReservar } from '@/features/compra/hooks'
 import { MINUTOS_RESERVA } from '@/features/compra/reserva'
@@ -18,6 +19,7 @@ import { km, moeda } from '@/lib/format'
 
 /** Coluna de decisão do detalhe: o que é, quanto custa e o que fazer agora. */
 export function PainelCompra({ carro, d }) {
+  const { ehAdmin } = useAuth()
   const { exigirCliente } = useExigirCliente()
   const { carroIds } = useMeusInteresses()
   const [interesseAberto, setInteresseAberto] = useState(false)
@@ -87,33 +89,42 @@ export function PainelCompra({ carro, d }) {
         {!disponivel && <Badge tom={TOM_STATUS_CARRO[carro.status]}>{STATUS_CARRO[carro.status]}</Badge>}
       </div>
 
-      <div className="flex flex-col gap-3">
-        {minhaReserva ? (
-          <Button asChild tamanho="lg">
-            <Link to={`/conta/compras/${minhaReserva.id}/pagamento`}>Continuar pagamento</Link>
-          </Button>
-        ) : (
-          <Button tamanho="lg" onClick={reservar} disabled={!disponivel}>
-            {disponivel ? 'Reservar carro' : carro.status === 'RESERVADO' ? 'Reservado por outra pessoa' : 'Carro vendido'}
-          </Button>
-        )}
-        {carro.status !== 'VENDIDO' &&
-          (jaDemonstrouInteresse ? (
-            <p className="flex h-13 items-center justify-center gap-2 rounded-controle bg-livre/10 font-semibold text-livre">
-              <Check className="size-5" aria-hidden="true" /> Interesse enviado. A equipe vai te procurar.
-            </p>
-          ) : (
-            <Button
-              tamanho="lg"
-              variante="secundaria"
-              onClick={() => exigirCliente(() => setInteresseAberto(true), 'Para falar com a equipe,')}
-            >
-              Tenho interesse
+      {/* O admin só gerencia: em vez de comprar, vai direto ao cadastro do carro */}
+      {ehAdmin ? (
+        <Button asChild tamanho="lg" variante="secundaria">
+          <Link to={`/admin/carros/${carro.id}`}>
+            <Pencil /> Editar no painel
+          </Link>
+        </Button>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {minhaReserva ? (
+            <Button asChild tamanho="lg">
+              <Link to={`/conta/compras/${minhaReserva.id}/pagamento`}>Continuar pagamento</Link>
             </Button>
-          ))}
-      </div>
+          ) : (
+            <Button tamanho="lg" onClick={reservar} disabled={!disponivel}>
+              {disponivel ? 'Reservar carro' : carro.status === 'RESERVADO' ? 'Reservado por outra pessoa' : 'Carro vendido'}
+            </Button>
+          )}
+          {carro.status !== 'VENDIDO' &&
+            (jaDemonstrouInteresse ? (
+              <p className="flex h-13 items-center justify-center gap-2 rounded-controle bg-livre/10 font-semibold text-livre">
+                <Check className="size-5" aria-hidden="true" /> Interesse enviado. A equipe vai te procurar.
+              </p>
+            ) : (
+              <Button
+                tamanho="lg"
+                variante="secundaria"
+                onClick={() => exigirCliente(() => setInteresseAberto(true), 'Para falar com a equipe,')}
+              >
+                Tenho interesse
+              </Button>
+            ))}
+        </div>
+      )}
 
-      {disponivel && (
+      {disponivel && !ehAdmin && (
         <p className="flex gap-3 text-sm text-texto-suave">
           <Timer className="mt-0.5 size-5 shrink-0 text-marca" aria-hidden="true" />
           Ao reservar, o carro sai da vitrine e fica separado para você por 30 minutos enquanto você paga com Pix, boleto ou

@@ -6,8 +6,8 @@ import * as api from './api'
 const CHAVE = ['me', 'favoritos']
 
 export function useFavoritos() {
-  const { estaLogado } = useAuth()
-  const consulta = useQuery({ queryKey: CHAVE, queryFn: api.listarFavoritos, enabled: estaLogado })
+  const { ehCliente } = useAuth()
+  const consulta = useQuery({ queryKey: CHAVE, queryFn: api.listarFavoritos, enabled: ehCliente })
   const ids = useMemo(() => new Set((consulta.data ?? []).map((f) => f.carroId)), [consulta.data])
   return { ...consulta, ids }
 }

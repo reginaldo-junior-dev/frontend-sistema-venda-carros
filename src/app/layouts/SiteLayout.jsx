@@ -58,7 +58,7 @@ function useSobreHero() {
 }
 
 function Cabecalho() {
-  const { estaLogado } = useAuth()
+  const { estaLogado, ehCliente } = useAuth()
   const [menuAberto, setMenuAberto] = useState(false)
   const sobreHero = useSobreHero()
 
@@ -78,7 +78,7 @@ function Cabecalho() {
           <NavLink to="/carros" className={linkNav}>
             Carros
           </NavLink>
-          {estaLogado && (
+          {ehCliente && (
             <NavLink to="/conta/favoritos" className={linkNav}>
               Favoritos
             </NavLink>
@@ -129,19 +129,22 @@ function MenuCelular({ aoNavegar }) {
       </NavLink>
       {estaLogado ? (
         <>
-          <NavLink to="/conta/favoritos" className={item}>
-            Favoritos
-          </NavLink>
-          <NavLink to="/conta/compras" className={item}>
-            Minhas compras
-          </NavLink>
-          <NavLink to="/conta" end className={item}>
-            Meus dados
-          </NavLink>
-          {ehAdmin && (
+          {ehAdmin ? (
             <NavLink to="/admin" className={item}>
               Painel da revenda
             </NavLink>
+          ) : (
+            <>
+              <NavLink to="/conta/favoritos" className={item}>
+                Favoritos
+              </NavLink>
+              <NavLink to="/conta/compras" className={item}>
+                Minhas compras
+              </NavLink>
+              <NavLink to="/conta" end className={item}>
+                Meus dados
+              </NavLink>
+            </>
           )}
           <button
             type="button"
@@ -180,6 +183,7 @@ function BotaoTema() {
 }
 
 function Rodape() {
+  const { ehAdmin } = useAuth()
   const link = 'text-white/60 transition-colors hover:text-white'
   return (
     <footer className="mt-28 bg-asfalto text-white dark:bg-[#101417]">
@@ -202,15 +206,27 @@ function Rodape() {
             Seminovos
           </Link>
         </nav>
-        <nav aria-label="Sua conta" className="flex flex-col gap-2">
-          <p className="font-semibold">Sua conta</p>
-          <Link to="/conta/compras" className={link}>
-            Minhas compras
-          </Link>
-          <Link to="/conta/favoritos" className={link}>
-            Favoritos
-          </Link>
-        </nav>
+        {ehAdmin ? (
+          <nav aria-label="Revenda" className="flex flex-col gap-2">
+            <p className="font-semibold">Revenda</p>
+            <Link to="/admin" className={link}>
+              Painel da revenda
+            </Link>
+            <Link to="/admin/carros" className={link}>
+              Estoque
+            </Link>
+          </nav>
+        ) : (
+          <nav aria-label="Sua conta" className="flex flex-col gap-2">
+            <p className="font-semibold">Sua conta</p>
+            <Link to="/conta/compras" className={link}>
+              Minhas compras
+            </Link>
+            <Link to="/conta/favoritos" className={link}>
+              Favoritos
+            </Link>
+          </nav>
+        )}
       </div>
       <div className="border-t border-white/10">
         <p className="mx-auto max-w-7xl px-4 py-5 text-sm text-white/50 sm:px-6 lg:px-8">

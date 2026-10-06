@@ -34,27 +34,28 @@ export function MenuConta() {
             <DropdownMenuSeparator />
           </>
         )}
-        <DropdownMenuItem asChild>
-          <Link to="/conta">
-            <UserRound /> Meus dados
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/conta/favoritos">
-            <Heart /> Favoritos
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/conta/compras">
-            <Receipt /> Minhas compras
-          </Link>
-        </DropdownMenuItem>
-        {ehAdmin && (
+        {/* O admin não compra nem favorita: a conta dele é o painel */}
+        {ehAdmin ? (
+          <DropdownMenuItem asChild>
+            <Link to="/admin">
+              <LayoutDashboard /> Painel da revenda
+            </Link>
+          </DropdownMenuItem>
+        ) : (
           <>
-            <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link to="/admin">
-                <LayoutDashboard /> Painel da revenda
+              <Link to="/conta">
+                <UserRound /> Meus dados
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/conta/favoritos">
+                <Heart /> Favoritos
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/conta/compras">
+                <Receipt /> Minhas compras
               </Link>
             </DropdownMenuItem>
           </>

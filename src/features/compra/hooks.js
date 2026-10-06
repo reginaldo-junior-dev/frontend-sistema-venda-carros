@@ -7,13 +7,13 @@ const CHAVE_COMPRAS = ['me', 'compras']
 const CHAVE_PAGAMENTOS = ['me', 'pagamentos']
 
 export function useMinhasCompras(opcoes = {}) {
-  const { estaLogado } = useAuth()
-  return useQuery({ queryKey: CHAVE_COMPRAS, queryFn: api.listarMinhasCompras, enabled: estaLogado, ...opcoes })
+  const { ehCliente } = useAuth()
+  return useQuery({ queryKey: CHAVE_COMPRAS, queryFn: api.listarMinhasCompras, enabled: ehCliente, ...opcoes })
 }
 
 export function useMeusPagamentos(opcoes = {}) {
-  const { estaLogado } = useAuth()
-  return useQuery({ queryKey: CHAVE_PAGAMENTOS, queryFn: api.listarMeusPagamentos, enabled: estaLogado, ...opcoes })
+  const { ehCliente } = useAuth()
+  return useQuery({ queryKey: CHAVE_PAGAMENTOS, queryFn: api.listarMeusPagamentos, enabled: ehCliente, ...opcoes })
 }
 
 // Pagamentos agrupados por compra, mais recentes primeiro

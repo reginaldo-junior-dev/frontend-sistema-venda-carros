@@ -2,15 +2,17 @@ import { useState } from 'react'
 import { Heart } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { toast } from 'sonner'
+import { useAuth } from '@/features/auth/useAuth'
 import { useExigirCliente } from '@/features/cliente/useExigirCliente'
 import { cn } from '@/lib/utils'
 import { useAlternarFavorito, useFavoritos } from './hooks'
 
 /**
  * Coração de favorito. Responde na hora (atualização otimista) e dá um "pulso"
- * ao marcar; quem não é cliente passa pelo cadastro antes.
+ * ao marcar; quem não é cliente passa pelo cadastro antes. O admin não vê o coração.
  */
 export function BotaoFavorito({ carroId, nomeCarro, variante = 'flutuante', className }) {
+  const { ehAdmin } = useAuth()
   const { ids } = useFavoritos()
   const alternar = useAlternarFavorito()
   const { exigirCliente } = useExigirCliente()
@@ -42,6 +44,8 @@ export function BotaoFavorito({ carroId, nomeCarro, variante = 'flutuante', clas
       'Para salvar favoritos,',
     )
   }
+
+  if (ehAdmin) return null
 
   const flutuante = variante === 'flutuante'
 

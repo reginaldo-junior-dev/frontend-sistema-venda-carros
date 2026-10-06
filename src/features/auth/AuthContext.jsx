@@ -71,6 +71,8 @@ export function AuthProvider({ children }) {
     () => ({
       estaLogado: Boolean(sessao),
       ehAdmin: sessao?.perfil === 'ADMINISTRADOR',
+      // Cliente é quem compra, favorita e fala com a equipe; o admin só opera o painel
+      ehCliente: Boolean(sessao) && sessao.perfil !== 'ADMINISTRADOR',
       perfil: sessao?.perfil ?? null,
       usuario: me.data ?? null,
       carregandoUsuario: me.isPending && me.fetchStatus !== 'idle',

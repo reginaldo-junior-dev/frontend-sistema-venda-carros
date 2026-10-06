@@ -29,8 +29,8 @@ export function useAtualizarCliente() {
 const CHAVE_ENDERECOS = ['me', 'enderecos']
 
 export function useEnderecos() {
-  const { estaLogado } = useAuth()
-  return useQuery({ queryKey: CHAVE_ENDERECOS, queryFn: enderecosApi.listarEnderecos, enabled: estaLogado })
+  const { ehCliente } = useAuth()
+  return useQuery({ queryKey: CHAVE_ENDERECOS, queryFn: enderecosApi.listarEnderecos, enabled: ehCliente })
 }
 
 // O back-end ajusta o "principal" dos outros endereços; a lista é recarregada inteira

@@ -3,11 +3,11 @@ import { useAuth } from '@/features/auth/useAuth'
 import * as api from './api'
 
 export function useMeuCliente() {
-  const { estaLogado } = useAuth()
+  const { ehCliente } = useAuth()
   return useQuery({
     queryKey: ['me', 'cliente'],
     queryFn: api.buscarMeuCliente,
-    enabled: estaLogado,
+    enabled: ehCliente,
     staleTime: 5 * 60_000,
   })
 }
