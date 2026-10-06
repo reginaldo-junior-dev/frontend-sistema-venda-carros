@@ -1,7 +1,9 @@
+import { useTitulo } from '@/lib/useTitulo'
 import { cn } from '@/lib/utils'
 
 // Título da página do painel, com a ação principal à direita
 export function CabecalhoAdmin({ titulo, descricao, children }) {
+  useTitulo(titulo)
   return (
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>

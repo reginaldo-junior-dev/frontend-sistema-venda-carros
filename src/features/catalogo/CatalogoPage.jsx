@@ -10,6 +10,7 @@ import { EstadoErro } from '@/components/shared/Estados'
 import { Paginacao } from '@/components/shared/Paginacao'
 import { numero } from '@/lib/format'
 import { useAdiado } from '@/lib/useAdiado'
+import { useTitulo } from '@/lib/useTitulo'
 import { CarroCard, CarroCardSkeleton } from './CarroCard'
 import { FiltrosAtivos } from './filtros/FiltrosAtivos'
 import { PainelFiltros } from './filtros/PainelFiltros'
@@ -17,6 +18,7 @@ import { aplicar, contarFiltros, lerFiltros, ORDENACOES, paraApi } from './filtr
 import { useCarros, useLookups } from './hooks'
 
 export default function CatalogoPage() {
+  useTitulo('Carros à venda')
   const [params, setParams] = useSearchParams()
   const estado = useMemo(() => lerFiltros(params), [params])
   const consulta = useCarros(paraApi(estado))

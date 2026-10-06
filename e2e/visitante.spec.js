@@ -3,6 +3,7 @@ import { expect, test } from './api-falsa.js'
 test('busca um carro no catálogo e abre o detalhe', async ({ page }) => {
   await page.goto('/carros')
   await expect(page.getByRole('heading', { name: 'Carros à venda' })).toBeVisible()
+  await expect(page).toHaveTitle('Carros à venda · Pátio')
   await expect(page.getByRole('link', { name: 'Corolla XEi' })).toBeVisible()
 
   await page.getByRole('searchbox', { name: 'Buscar pelo nome do carro' }).fill('civic')
@@ -12,6 +13,18 @@ test('busca um carro no catálogo e abre o detalhe', async ({ page }) => {
   await page.getByRole('link', { name: 'Civic Touring' }).click()
   await expect(page).toHaveURL('/carros/car-civic')
   await expect(page.getByRole('heading', { level: 1, name: 'Civic Touring' })).toBeVisible()
+  // A aba mostra marca e versão do carro aberto
+  await expect(page).toHaveTitle('Honda Civic Touring · Pátio')
+})
+
+test('endereço que não existe mostra a página 404 com título próprio', async ({ page }) => {
+  await page.goto('/pagina-que-nao-existe')
+  await expect(page.getByRole('heading', { name: 'Esta página não está no pátio.' })).toBeVisible()
+  await expect(page).toHaveTitle('Página não encontrada · Pátio')
+
+  // Voltar para a home devolve o nome do site
+  await page.getByRole('link', { name: /página inicial/ }).first().click()
+  await expect(page).toHaveTitle('Pátio · Carros novos e usados')
 })
 
 test('filtra por marca e o filtro fica na URL', async ({ page, isMobile }) => {

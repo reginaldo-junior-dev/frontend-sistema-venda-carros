@@ -13,6 +13,7 @@ import { descreverCarro } from '@/features/catalogo/descrever'
 import { useCarro, useLookups } from '@/features/catalogo/hooks'
 import { METODO_PAGAMENTO } from '@/lib/enums'
 import { km, moeda } from '@/lib/format'
+import { useTitulo } from '@/lib/useTitulo'
 import { cn } from '@/lib/utils'
 import { ContagemReserva } from './ContagemReserva'
 import { PagamentoCartao } from './PagamentoCartao'
@@ -42,6 +43,7 @@ const METODOS = [
 ]
 
 export default function PagamentoPage() {
+  useTitulo('Pagamento')
   const { id } = useParams()
   // Enquanto espera a equipe ou a Stripe, a página se atualiza sozinha
   const [acompanhar, setAcompanhar] = useState(false)

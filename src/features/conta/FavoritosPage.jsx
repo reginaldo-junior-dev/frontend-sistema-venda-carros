@@ -5,8 +5,10 @@ import { EstadoErro } from '@/components/shared/Estados'
 import { CarroCard, CarroCardSkeleton } from '@/features/catalogo/CarroCard'
 import { useCarrosPorId, useLookups } from '@/features/catalogo/hooks'
 import { useAlternarFavorito, useFavoritos } from '@/features/favoritos/hooks'
+import { useTitulo } from '@/lib/useTitulo'
 
 export default function FavoritosPage() {
+  useTitulo('Favoritos')
   const favoritos = useFavoritos()
   const lookups = useLookups()
   // Mais recentes primeiro

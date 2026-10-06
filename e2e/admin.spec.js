@@ -6,6 +6,7 @@ test('admin entra pelo formulário e cai no painel', async ({ page }) => {
   await page.getByLabel('Senha', { exact: true }).fill('admin123')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page).toHaveURL('/admin')
+  await expect(page).toHaveTitle('Resumo · Pátio')
 })
 
 test.describe('com o admin logado', () => {

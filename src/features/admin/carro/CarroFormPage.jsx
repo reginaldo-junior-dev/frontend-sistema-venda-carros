@@ -21,6 +21,7 @@ import { useCarro, useLookups } from '@/features/catalogo/hooks'
 import { CAMBIO, COMBUSTIVEL, STATUS_CARRO, TOM_STATUS_CARRO } from '@/lib/enums'
 import { anos, km, numero, soDigitos } from '@/lib/format'
 import { useAlterado } from '@/lib/useAlterado'
+import { useTitulo } from '@/lib/useTitulo'
 import { useSalvarCarro } from '../hooks'
 import { enviarImagem } from '../api'
 import { FotosCarro } from './FotosCarro'
@@ -81,6 +82,7 @@ export default function CarroFormPage() {
 }
 
 function Formulario({ carro, lookups }) {
+  useTitulo(carro ? `Editar ${carro.nome}` : 'Novo carro')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const salvar = useSalvarCarro()

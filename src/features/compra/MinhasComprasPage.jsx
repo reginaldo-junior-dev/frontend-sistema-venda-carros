@@ -9,6 +9,7 @@ import { descreverCarro } from '@/features/catalogo/descrever'
 import { useCarrosPorId, useLookups } from '@/features/catalogo/hooks'
 import { METODO_PAGAMENTO, STATUS_COMPRA, STATUS_PAGAMENTO, STATUS_PARCELA } from '@/lib/enums'
 import { data, dataHora, moeda } from '@/lib/format'
+import { useTitulo } from '@/lib/useTitulo'
 import { cn } from '@/lib/utils'
 import { ContagemReserva } from './ContagemReserva'
 import { useMinhasCompras, usePagamentosPorCompra, useParcelas } from './hooks'
@@ -19,6 +20,7 @@ const TOM_PAGAMENTO = { PENDENTE: 'atencao', APROVADO: 'livre', RECUSADO: 'vendi
 const TOM_PARCELA = { PENDENTE: 'atencao', PAGA: 'livre', CANCELADA: 'neutro' }
 
 export default function MinhasComprasPage() {
+  useTitulo('Minhas compras')
   const compras = useMinhasCompras()
   const pagamentos = usePagamentosPorCompra()
   const lookups = useLookups()

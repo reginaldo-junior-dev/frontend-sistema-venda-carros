@@ -1,3 +1,4 @@
+import { useTitulo } from '@/lib/useTitulo'
 import { BuscaPainel } from './home/BuscaPainel'
 import { Categorias } from './home/Categorias'
 import { Chamada } from './home/Chamada'
@@ -10,6 +11,7 @@ import { useCarros, useLookups } from './hooks'
 const VITRINE = { status: 'DISPONIVEL', size: 8, sort: 'preco,desc' }
 
 export default function HomePage() {
+  useTitulo()
   const lookups = useLookups()
   const vitrine = useCarros(VITRINE)
   const carros = vitrine.data?.itens ?? []

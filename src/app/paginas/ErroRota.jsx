@@ -1,11 +1,15 @@
 import { isRouteErrorResponse, Link, useRouteError } from 'react-router'
 import { Button } from '@/components/ui/button'
+import { useTitulo } from '@/lib/useTitulo'
 import NaoEncontrada from './NaoEncontrada'
 
 // Captura erros de renderização e de carregamento de rotas (inclusive chunk lazy que falhou)
 export default function ErroRota() {
   const erro = useRouteError()
-  if (isRouteErrorResponse(erro) && erro.status === 404) return <NaoEncontrada />
+  const naoEncontrada = isRouteErrorResponse(erro) && erro.status === 404
+  // Aqui e não só na NaoEncontrada: o efeito da página-mãe roda depois e sobrescreveria o título
+  useTitulo(naoEncontrada ? 'Página não encontrada' : 'Erro ao carregar')
+  if (naoEncontrada) return <NaoEncontrada />
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-20 sm:px-6 lg:px-8">

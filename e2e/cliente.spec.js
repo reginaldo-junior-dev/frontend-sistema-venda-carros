@@ -13,6 +13,7 @@ test('reserva um carro e paga com Pix', async ({ page, api }) => {
 
   await expect(page).toHaveURL('/conta/compras/compra-1/pagamento')
   await expect(page.getByRole('heading', { name: 'Como você quer pagar?' })).toBeVisible()
+  await expect(page).toHaveTitle('Pagamento · Pátio')
   await expect(page.getByText('Carro reservado para você')).toBeVisible()
 
   await page.getByText('Pix', { exact: true }).click()

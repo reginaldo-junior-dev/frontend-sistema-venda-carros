@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router'
 import { ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EstadoErro } from '@/components/shared/Estados'
+import { useTitulo } from '@/lib/useTitulo'
 import { CarroCard } from './CarroCard'
 import { descreverCarro, nomeTransicaoFoto } from './descrever'
 import { FichaTecnica } from './detalhe/FichaTecnica'
@@ -13,6 +14,8 @@ export default function CarroDetalhePage() {
   const { id } = useParams()
   const consulta = useCarro(id)
   const lookups = useLookups()
+  // Marca + versão quando o carro carregar ("Toyota Corolla XEi · Pátio")
+  useTitulo(consulta.data && `${descreverCarro(consulta.data, lookups.porId).marca} ${consulta.data.nome}`.trim())
 
   if (consulta.isPending) return <Esqueleto />
   if (consulta.isError) {

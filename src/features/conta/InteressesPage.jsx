@@ -8,6 +8,7 @@ import { useCarrosPorId, useLookups } from '@/features/catalogo/hooks'
 import { useMeusInteresses } from '@/features/interesses/hooks'
 import { STATUS_INTERESSE } from '@/lib/enums'
 import { dataHora } from '@/lib/format'
+import { useTitulo } from '@/lib/useTitulo'
 
 // O que cada status significa para quem enviou o interesse
 const SITUACAO = {
@@ -18,6 +19,7 @@ const SITUACAO = {
 }
 
 export default function InteressesPage() {
+  useTitulo('Meus interesses')
   const interesses = useMeusInteresses()
   const lookups = useLookups()
   const lista = [...(interesses.data ?? [])].sort((a, b) =>

@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
+import { useTitulo } from '@/lib/useTitulo'
 import { destinoAposEntrar } from './destino'
 import { useAuth } from './useAuth'
 
 // Destino do login Google: a API redireciona para cá com ?token=
 export default function OAuthCallbackPage() {
+  useTitulo('Entrando com Google')
   const [params] = useSearchParams()
   const { entrarComToken } = useAuth()
   const navigate = useNavigate()

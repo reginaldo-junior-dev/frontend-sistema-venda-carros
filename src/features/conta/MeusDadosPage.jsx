@@ -12,10 +12,12 @@ import { Campo } from '@/components/shared/Campo'
 import { useAuth } from '@/features/auth/useAuth'
 import { FormularioCliente } from '@/features/cliente/FormularioCliente'
 import { useMeuCliente } from '@/features/cliente/hooks'
+import { useTitulo } from '@/lib/useTitulo'
 import { Enderecos } from './Enderecos'
 import { useAtualizarMe, useExcluirMe } from './hooks'
 
 export default function MeusDadosPage() {
+  useTitulo('Meus dados')
   const { usuario } = useAuth()
   const cliente = useMeuCliente()
 

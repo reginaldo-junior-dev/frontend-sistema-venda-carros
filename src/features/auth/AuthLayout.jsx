@@ -1,8 +1,10 @@
 import { Plaqueta } from '@/components/shared/Plaqueta'
 import { MINUTOS_RESERVA } from '@/features/compra/reserva'
+import { useTitulo } from '@/lib/useTitulo'
 
 // Moldura das telas de entrar e criar conta: formulário à esquerda, foto do pátio à direita
 export function AuthLayout({ titulo, descricao, children }) {
+  useTitulo(titulo)
   return (
     <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:py-16 lg:grid-cols-[1fr_1.1fr] lg:items-stretch lg:gap-16 lg:px-8">
       <div className="mx-auto flex w-full max-w-md flex-col justify-center gap-8">
