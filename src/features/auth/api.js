@@ -15,9 +15,14 @@ export async function buscarMe() {
   return data
 }
 
-// O back-end grava a senha enviada como nova senha (não confere a atual)
-export async function atualizarMe({ nomeCompleto, email, senha }) {
-  const { data } = await http.put('/usuario/me', { nomeCompleto, email, senha })
+// Trocar e-mail ou senha exige a senha atual; campos vazios não são enviados (nova senha vazia mantém a atual)
+export async function atualizarMe({ nomeCompleto, email, senhaAtual, novaSenha }) {
+  const { data } = await http.put('/usuario/me', {
+    nomeCompleto,
+    email,
+    senhaAtual: senhaAtual || undefined,
+    novaSenha: novaSenha || undefined,
+  })
   return data
 }
 

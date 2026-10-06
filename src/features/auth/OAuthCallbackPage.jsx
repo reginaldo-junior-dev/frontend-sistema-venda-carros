@@ -1,14 +1,15 @@
 import { useEffect, useRef } from 'react'
-import { useNavigate, useSearchParams } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useTitulo } from '@/lib/useTitulo'
 import { destinoAposEntrar } from './destino'
 import { useAuth } from './useAuth'
 
-// Destino do login Google: a API redireciona para cá com ?token=
+// Destino do login Google: a API redireciona para cá com #token=.
+// Depois do # porque essa parte da URL não chega a nenhum servidor (logs de acesso, Referer)
 export default function OAuthCallbackPage() {
   useTitulo('Entrando com Google')
-  const [params] = useSearchParams()
+  const { hash } = useLocation()
   const { entrarComToken } = useAuth()
   const navigate = useNavigate()
   const tratado = useRef(false)
@@ -16,7 +17,7 @@ export default function OAuthCallbackPage() {
   useEffect(() => {
     if (tratado.current) return
     tratado.current = true
-    const sessao = entrarComToken(params.get('token') ?? '')
+    const sessao = entrarComToken(new URLSearchParams(hash.slice(1)).get('token') ?? '')
     if (sessao) {
       toast.success('Você entrou com sua conta Google.')
       navigate(destinoAposEntrar(null, sessao.perfil), { replace: true })
@@ -24,7 +25,7 @@ export default function OAuthCallbackPage() {
       toast.error('Não foi possível entrar com o Google. Tente de novo ou use e-mail e senha.')
       navigate('/entrar', { replace: true })
     }
-  }, [params, entrarComToken, navigate])
+  }, [hash, entrarComToken, navigate])
 
   return (
     <div className="mx-auto max-w-md px-4 py-24">

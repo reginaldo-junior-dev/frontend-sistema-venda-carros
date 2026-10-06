@@ -14,7 +14,7 @@ test('o botão leva ao login Google da API', async ({ page }) => {
 
 test('cliente volta do Google logado e o token sai da URL', async ({ page }) => {
   const tokenCliente = token('USUARIO')
-  await page.goto(`/oauth/callback?token=${tokenCliente}`)
+  await page.goto(`/oauth/callback#token=${tokenCliente}`)
 
   await expect(page).toHaveURL('/')
   await expect(page.getByText('Você entrou com sua conta Google.')).toBeVisible()
@@ -25,7 +25,7 @@ test('cliente volta do Google logado e o token sai da URL', async ({ page }) => 
 })
 
 test('admin volta do Google direto para o painel', async ({ page }) => {
-  await page.goto(`/oauth/callback?token=${token('ADMINISTRADOR')}`)
+  await page.goto(`/oauth/callback#token=${token('ADMINISTRADOR')}`)
   await expect(page).toHaveURL('/admin')
 })
 

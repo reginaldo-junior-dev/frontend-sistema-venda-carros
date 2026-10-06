@@ -46,3 +46,26 @@ test('outra pessoa reservou antes: avisa e não leva ao pagamento', async ({ pag
   await expect(page.getByText('Outra pessoa acabou de reservar este carro.')).toBeVisible()
   await expect(page).toHaveURL('/carros/car-corolla')
 })
+
+test('trocar a senha exige a senha atual certa', async ({ page, api }) => {
+  await page.goto('/conta')
+  const novaSenha = page.getByLabel('Nova senha')
+  const senhaAtual = page.getByLabel('Senha atual')
+  const salvar = page.getByRole('button', { name: 'Salvar dados de acesso' })
+
+  // Sem a senha atual: o próprio formulário avisa, sem chamar a API
+  await novaSenha.fill('novaSenha123')
+  await salvar.click()
+  await expect(page.getByText('Digite sua senha atual para trocar o e-mail ou a senha')).toBeVisible()
+
+  // Senha atual errada: a API recusa e o erro aparece no campo
+  await senhaAtual.fill('errada')
+  await salvar.click()
+  await expect(page.getByText('Senha atual incorreta')).toBeVisible()
+  expect(api.contas['ana@exemplo.com'].senha).toBe('senha123')
+
+  await senhaAtual.fill('senha123')
+  await salvar.click()
+  await expect(page.getByText('Dados de acesso e senha salvos.')).toBeVisible()
+  expect(api.contas['ana@exemplo.com'].senha).toBe('novaSenha123')
+})

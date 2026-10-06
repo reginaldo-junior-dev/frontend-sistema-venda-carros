@@ -87,14 +87,29 @@ function Carregando() {
   )
 }
 
-const esquemaAcesso = z.object({
-  nomeCompleto: z.string().trim().min(3, 'Informe seu nome completo').max(150, 'Use no máximo 150 caracteres'),
-  email: z.email('Informe um e-mail válido').max(150, 'Use no máximo 150 caracteres'),
-  senha: z.string().min(1, 'Digite sua senha para salvar').max(72, 'Use no máximo 72 caracteres'),
-})
+// Senha atual só é pedida quando muda o que dá acesso à conta (e-mail ou senha), como exige a API
+function esquemaAcesso(emailAtual) {
+  return z
+    .object({
+      nomeCompleto: z.string().trim().min(3, 'Informe seu nome completo').max(150, 'Use no máximo 150 caracteres'),
+      email: z.email('Informe um e-mail válido').max(150, 'Use no máximo 150 caracteres'),
+      senhaAtual: z.string().max(72, 'Use no máximo 72 caracteres'),
+      novaSenha: z.union([
+        z.literal(''),
+        z.string().min(8, 'Use pelo menos 8 caracteres').max(72, 'Use no máximo 72 caracteres'),
+      ]),
+    })
+    .refine((v) => !(v.email !== emailAtual || v.novaSenha) || v.senhaAtual, {
+      path: ['senhaAtual'],
+      message: 'Digite sua senha atual para trocar o e-mail ou a senha',
+    })
+}
+
+const VAZIO = { senhaAtual: '', novaSenha: '' }
 
 function FormularioAcesso({ usuario }) {
   const atualizar = useAtualizarMe()
+  // Conta Google: o e-mail vem do Google e não há senha para trocar, só o nome
   const contaGoogle = usuario.provedor && usuario.provedor !== 'LOCAL'
   const {
     register,
@@ -103,15 +118,15 @@ function FormularioAcesso({ usuario }) {
     reset,
     formState: { errors, isSubmitting, isDirty },
   } = useForm({
-    resolver: zodResolver(esquemaAcesso),
-    defaultValues: { nomeCompleto: usuario.nomeCompleto, email: usuario.email, senha: '' },
+    resolver: zodResolver(esquemaAcesso(usuario.email)),
+    defaultValues: { nomeCompleto: usuario.nomeCompleto, email: usuario.email, ...VAZIO },
   })
 
   async function enviar(valores) {
     try {
       const salvo = await atualizar.mutateAsync(valores)
-      reset({ nomeCompleto: salvo.nomeCompleto, email: salvo.email, senha: '' })
-      toast.success('Dados de acesso salvos.')
+      reset({ nomeCompleto: salvo.nomeCompleto, email: salvo.email, ...VAZIO })
+      toast.success(valores.novaSenha ? 'Dados de acesso e senha salvos.' : 'Dados de acesso salvos.')
     } catch (erro) {
       if (erro.campos && Object.keys(erro.campos).length) {
         Object.entries(erro.campos).forEach(([campo, mensagem]) => setError(campo, { message: mensagem }))
@@ -140,18 +155,20 @@ function FormularioAcesso({ usuario }) {
       >
         {(props) => <Input {...props} type="email" autoComplete="email" readOnly={contaGoogle} {...register('email')} />}
       </Campo>
-      {/* O back-end grava a senha enviada: digitar a atual mantém, digitar outra troca */}
-      <Campo
-        rotulo="Senha"
-        erro={errors.senha?.message}
-        ajuda={
-          contaGoogle
-            ? 'Crie uma senha para também poder entrar com e-mail e senha.'
-            : 'Digite sua senha atual para salvar. Se digitar uma nova, ela passa a valer.'
-        }
-      >
-        {(props) => <InputSenha {...props} autoComplete="current-password" {...register('senha')} />}
-      </Campo>
+      {!contaGoogle && (
+        <>
+          <Campo rotulo="Nova senha" erro={errors.novaSenha?.message} ajuda="Deixe em branco para manter a senha atual.">
+            {(props) => <InputSenha {...props} autoComplete="new-password" {...register('novaSenha')} />}
+          </Campo>
+          <Campo
+            rotulo="Senha atual"
+            erro={errors.senhaAtual?.message}
+            ajuda="Necessária só para trocar o e-mail ou a senha."
+          >
+            {(props) => <InputSenha {...props} autoComplete="current-password" {...register('senhaAtual')} />}
+          </Campo>
+        </>
+      )}
       <Button type="submit" disabled={isSubmitting || !isDirty} className="mt-2 self-start">
         {isSubmitting ? 'Salvando…' : 'Salvar dados de acesso'}
       </Button>

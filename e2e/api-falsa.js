@@ -97,6 +97,17 @@ export class ApiFalsa {
       const conta = Object.entries(this.contas).find(([, c]) => c.perfil === perfil)
       return json({ id: `usuario-${perfil.toLowerCase()}`, nomeCompleto: conta[1].nome, email: conta[0], perfil })
     }
+    // Mesma regra da API: trocar e-mail ou senha exige a senha atual
+    if (metodo === 'PUT' && caminho === '/usuario/me') {
+      const corpo = req.postDataJSON()
+      const [email, conta] = Object.entries(this.contas).find(([, c]) => c.perfil === perfil)
+      if ((corpo.email !== email || corpo.novaSenha) && corpo.senhaAtual !== conta.senha) {
+        return json({ status: 400, mensagens: { senhaAtual: 'Senha atual incorreta' }, data: new Date().toISOString() }, 400)
+      }
+      if (corpo.novaSenha) conta.senha = corpo.novaSenha
+      conta.nome = corpo.nomeCompleto
+      return json({ id: `usuario-${perfil.toLowerCase()}`, nomeCompleto: conta.nome, email, perfil, provedor: 'LOCAL' })
+    }
     if (metodo === 'GET' && caminho === '/cliente/me') return perfil === 'USUARIO' ? json(this.cliente) : erro(404, 'Cliente não encontrado')
     if (metodo === 'GET' && ['/cliente/me/favoritos', '/cliente/me/interesses'].includes(caminho)) return json(pagina([]))
     if (metodo === 'GET' && caminho === '/endereco') return json([])
