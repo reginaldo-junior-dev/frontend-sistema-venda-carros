@@ -27,7 +27,7 @@ export default defineConfig({
     url: `http://localhost:${PORTA}`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
-    // Variável do processo tem prioridade sobre o .env.production
+    // Variável do processo tem prioridade sobre os arquivos .env
     env: { VITE_API_URL: API, VITE_STRIPE_PUBLISHABLE_KEY: '' },
   },
 })

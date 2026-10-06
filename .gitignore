@@ -8,6 +8,9 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+
+# Variáveis de ambiente: cada pessoa cria o seu .env (ver README)
+.env
 dist
 dist-ssr
 dist-e2e
@@ -21,7 +24,6 @@ playwright-report
 .vscode/*
 !.vscode/extensions.json
 .idea
-.env.development.local
 .DS_Store
 *.suo
 *.ntvs*
