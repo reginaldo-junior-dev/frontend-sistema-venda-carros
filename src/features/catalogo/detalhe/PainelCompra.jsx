@@ -127,7 +127,7 @@ export function PainelCompra({ carro, d }) {
       {disponivel && !ehAdmin && (
         <p className="flex gap-3 text-sm text-texto-suave">
           <Timer className="mt-0.5 size-5 shrink-0 text-marca" aria-hidden="true" />
-          Ao reservar, o carro sai da vitrine e fica separado para você por 30 minutos enquanto você paga com Pix, boleto ou
+          Ao reservar, o carro sai da vitrine e fica separado para você por {MINUTOS_RESERVA} minutos enquanto você paga com Pix, boleto ou
           cartão.
         </p>
       )}

@@ -1,4 +1,5 @@
 import { Plaqueta } from '@/components/shared/Plaqueta'
+import { MINUTOS_RESERVA } from '@/features/compra/reserva'
 
 // Moldura das telas de entrar e criar conta: formulário à esquerda, foto do pátio à direita
 export function AuthLayout({ titulo, descricao, children }) {
@@ -21,7 +22,7 @@ export function AuthLayout({ titulo, descricao, children }) {
           </Plaqueta>
           <p className="tipo-emblema max-w-[18ch] text-h2 leading-tight">Reserve online. A chave espera por você.</p>
           <p className="max-w-[40ch] text-white/75">
-            Ao reservar, o carro sai da vitrine e fica separado por 30 minutos enquanto você paga.
+            Ao reservar, o carro sai da vitrine e fica separado por {MINUTOS_RESERVA} minutos enquanto você paga.
           </p>
         </div>
       </div>

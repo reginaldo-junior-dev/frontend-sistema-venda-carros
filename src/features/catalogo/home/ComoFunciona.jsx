@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring } from 'motion/react'
+import { MINUTOS_RESERVA } from '@/features/compra/reserva'
 import { cn } from '@/lib/utils'
 
 // É uma sequência de verdade, por isso numerada
@@ -10,7 +11,7 @@ const PASSOS = [
   },
   {
     titulo: 'Reserve online',
-    texto: 'Ao reservar, o carro sai da vitrine e fica separado para você por 30 minutos.',
+    texto: `Ao reservar, o carro sai da vitrine e fica separado para você por ${MINUTOS_RESERVA} minutos.`,
   },
   {
     titulo: 'Pague do seu jeito',

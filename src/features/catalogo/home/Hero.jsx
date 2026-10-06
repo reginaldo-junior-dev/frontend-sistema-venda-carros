@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { Button } from '@/components/ui/button'
+import { MINUTOS_RESERVA } from '@/features/compra/reserva'
 import { linhaTitulo, surgir } from '@/lib/motion'
 import { Portao } from '../Portao'
 import { VideoFundo } from './VideoFundo'
@@ -70,7 +71,7 @@ export function Hero({ totalDisponiveis }) {
           {totalDisponiveis
             ? `${totalDisponiveis} carros disponíveis agora, com fotos reais e ficha completa.`
             : 'Carros novos e seminovos, com fotos reais e ficha completa.'}{' '}
-          Reserve online e o carro fica separado para você por 30 minutos.
+          Reserve online e o carro fica separado para você por {MINUTOS_RESERVA} minutos.
         </motion.p>
 
         <motion.div

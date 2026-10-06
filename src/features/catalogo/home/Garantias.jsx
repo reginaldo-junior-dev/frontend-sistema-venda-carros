@@ -1,8 +1,9 @@
 import { CreditCard, Mail, QrCode, Timer } from 'lucide-react'
+import { MINUTOS_RESERVA } from '@/features/compra/reserva'
 
 // Só o que o sistema realmente faz: nada de promessa que a API não cumpre
 const ITENS = [
-  { icone: Timer, titulo: 'Reserva de 30 minutos', texto: 'O carro sai da vitrine enquanto você paga' },
+  { icone: Timer, titulo: `Reserva de ${MINUTOS_RESERVA} minutos`, texto: 'O carro sai da vitrine enquanto você paga' },
   { icone: QrCode, titulo: 'Pix ou boleto', texto: 'Pagamento à vista com confirmação da equipe' },
   { icone: CreditCard, titulo: 'Cartão em parcelas', texto: 'Com a verificação de segurança do seu banco' },
   { icone: Mail, titulo: 'Tudo por e-mail', texto: 'Aviso de compra aprovada e de reserva expirada' },
