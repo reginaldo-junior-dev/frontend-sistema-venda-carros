@@ -23,3 +23,11 @@ export function useCadastrarCliente() {
     },
   })
 }
+
+export function useAtualizarCliente() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.atualizarCliente,
+    onSuccess: (cliente) => queryClient.setQueryData(['me', 'cliente'], cliente),
+  })
+}

@@ -4,11 +4,10 @@ import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Campo } from '@/components/shared/Campo'
-import { useAtualizarCliente } from '@/features/conta/hooks'
 import { cpf as mascaraCpf, soDigitos, telefone as mascaraTelefone } from '@/lib/format'
 import { cpfValido, telefoneValido } from '@/lib/validacao'
 import { useAlterado } from '@/lib/useAlterado'
-import { useCadastrarCliente } from './hooks'
+import { useAtualizarCliente, useCadastrarCliente } from './hooks'
 
 const hoje = () => new Date().toISOString().slice(0, 10)
 

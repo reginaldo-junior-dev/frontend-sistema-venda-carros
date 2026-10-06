@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as authApi from '@/features/auth/api'
-import * as clienteApi from '@/features/cliente/api'
 import { useAuth } from '@/features/auth/useAuth'
 import * as enderecosApi from './enderecosApi'
 
@@ -16,14 +15,6 @@ export function useAtualizarMe() {
 // Quem chama encerra a sessão depois de sair da área logada (senão a rota protegida redireciona antes)
 export function useExcluirMe() {
   return useMutation({ mutationFn: authApi.excluirMe })
-}
-
-export function useAtualizarCliente() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: clienteApi.atualizarCliente,
-    onSuccess: (cliente) => queryClient.setQueryData(['me', 'cliente'], cliente),
-  })
 }
 
 const CHAVE_ENDERECOS = ['me', 'enderecos']

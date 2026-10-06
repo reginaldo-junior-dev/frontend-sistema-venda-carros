@@ -5,7 +5,7 @@ Cada foto pode ser aberta em https://images.unsplash.com/<foto>:
 
 | Arquivo | Foto |
 |---|---|
-| hero-garagem.webp, hero-garagem-mobile.webp | photo-1621007947382-bb3c3994e3fb |
+| hero-garagem.webp | photo-1621007947382-bb3c3994e3fb |
 | sedan.webp | photo-1502877338535-766e1452684a |
 | suv.webp | photo-1617469767053-d3b523a0b982 |
 | hatch.webp | photo-1541899481282-d53bffe3c35d |
