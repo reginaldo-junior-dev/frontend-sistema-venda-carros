@@ -100,8 +100,22 @@ export function FormularioCliente({ cliente, textoBotao, aoConcluir, className }
           </Campo>
         )}
       />
-      <Campo rotulo="Data de nascimento" erro={errors.dataNascimento?.message}>
-        {(props) => <Input {...props} type="date" max={hoje()} autoComplete="bday" {...register('dataNascimento')} />}
+      <Campo
+        rotulo="Data de nascimento"
+        erro={errors.dataNascimento?.message}
+        ajuda={cliente ? 'A data de nascimento não pode ser alterada depois do cadastro.' : undefined}
+      >
+        {(props) => (
+          <Input
+            {...props}
+            type="date"
+            max={hoje()}
+            autoComplete="bday"
+            readOnly={Boolean(cliente)}
+            className="read-only:cursor-default read-only:text-texto-suave"
+            {...register('dataNascimento')}
+          />
+        )}
       </Campo>
       <Controller
         name="telefone"
