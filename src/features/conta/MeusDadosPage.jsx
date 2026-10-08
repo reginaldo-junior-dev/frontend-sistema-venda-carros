@@ -57,9 +57,12 @@ export default function MeusDadosPage() {
         )}
       </Secao>
 
-      <Secao titulo="Excluir conta" descricao="Apaga sua conta, seus dados de comprador, favoritos e endereços.">
-        <ExcluirConta />
-      </Secao>
+      {/* A API não exclui contas de administrador */}
+      {usuario?.perfil !== 'ADMINISTRADOR' && (
+        <Secao titulo="Excluir conta" descricao="Apaga sua conta, seus dados de comprador, favoritos e endereços.">
+          <ExcluirConta />
+        </Secao>
+      )}
     </div>
   )
 }

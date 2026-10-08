@@ -87,8 +87,12 @@ export default function UsuariosPage() {
                           variante="fantasma"
                           tamanho="icone"
                           className="size-9 text-vendido"
-                          disabled={souEu}
-                          aria-label={souEu ? 'Você não pode excluir a própria conta aqui' : `Excluir ${u.nomeCompleto}`}
+                          disabled={u.perfil === 'ADMINISTRADOR'}
+                          aria-label={
+                            u.perfil === 'ADMINISTRADOR'
+                              ? 'Contas de administrador não podem ser excluídas'
+                              : `Excluir ${u.nomeCompleto}`
+                          }
                           onClick={() => pedirExclusao(u)}
                         >
                           <Trash2 />
