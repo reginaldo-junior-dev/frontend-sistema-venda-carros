@@ -162,7 +162,8 @@ function Pagamentos() {
                           Cancelar
                         </Button>
                       )}
-                      {p.status === 'APROVADO' && (
+                      {/* Cartão é cobrado inteiro pela Stripe e não é parcelado aqui */}
+                      {p.status === 'APROVADO' && !p.idExterno && (
                         <Button tamanho="sm" variante="secundaria" onClick={() => setParcelasDe(p)}>
                           Parcelas
                         </Button>
