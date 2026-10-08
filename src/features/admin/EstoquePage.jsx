@@ -141,11 +141,14 @@ export default function EstoquePage() {
                     </td>
                     <td>
                       <div className="flex justify-end gap-1">
-                        <Button asChild variante="fantasma" tamanho="icone" className="size-9" aria-label={`Editar ${carro.nome}`}>
-                          <Link to={`/admin/carros/${carro.id}`}>
-                            <Pencil />
-                          </Link>
-                        </Button>
+                        {/* A API não altera carro vendido: a compra aponta para ele */}
+                        {carro.status !== 'VENDIDO' && (
+                          <Button asChild variante="fantasma" tamanho="icone" className="size-9" aria-label={`Editar ${carro.nome}`}>
+                            <Link to={`/admin/carros/${carro.id}`}>
+                              <Pencil />
+                            </Link>
+                          </Button>
+                        )}
                         <Button asChild variante="fantasma" tamanho="icone" className="size-9" aria-label={`Ver ${carro.nome} no site`}>
                           <Link to={`/carros/${carro.id}`} target="_blank">
                             <ExternalLink />

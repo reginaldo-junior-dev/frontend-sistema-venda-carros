@@ -89,13 +89,15 @@ export function PainelCompra({ carro, d }) {
         {!disponivel && <Badge tom={TOM_STATUS_CARRO[carro.status]}>{STATUS_CARRO[carro.status]}</Badge>}
       </div>
 
-      {/* O admin só gerencia: em vez de comprar, vai direto ao cadastro do carro */}
+      {/* O admin só gerencia: em vez de comprar, vai direto ao cadastro do carro (vendido não é alterado) */}
       {ehAdmin ? (
-        <Button asChild tamanho="lg" variante="secundaria">
-          <Link to={`/admin/carros/${carro.id}`}>
-            <Pencil /> Editar no painel
-          </Link>
-        </Button>
+        carro.status !== 'VENDIDO' && (
+          <Button asChild tamanho="lg" variante="secundaria">
+            <Link to={`/admin/carros/${carro.id}`}>
+              <Pencil /> Editar no painel
+            </Link>
+          </Button>
+        )
       ) : (
         <div className="flex flex-col gap-3">
           {minhaReserva ? (
