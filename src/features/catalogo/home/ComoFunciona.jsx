@@ -15,7 +15,7 @@ const PASSOS = [
   },
   {
     titulo: 'Pague do seu jeito',
-    texto: 'Pix, boleto ou cartão de crédito em parcelas. O cartão passa pela verificação de segurança do seu banco.',
+    texto: 'Pix, boleto ou cartão de crédito. O cartão passa pela verificação de segurança do seu banco.',
   },
   {
     titulo: 'Receba a confirmação',

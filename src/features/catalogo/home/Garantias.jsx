@@ -5,7 +5,7 @@ import { MINUTOS_RESERVA } from '@/features/compra/reserva'
 const ITENS = [
   { icone: Timer, titulo: `Reserva de ${MINUTOS_RESERVA} minutos`, texto: 'O carro sai da vitrine enquanto você paga' },
   { icone: QrCode, titulo: 'Pix ou boleto', texto: 'Pagamento à vista com confirmação da equipe' },
-  { icone: CreditCard, titulo: 'Cartão em parcelas', texto: 'Com a verificação de segurança do seu banco' },
+  { icone: CreditCard, titulo: 'Cartão de crédito', texto: 'Com a verificação de segurança do seu banco' },
   { icone: Mail, titulo: 'Tudo por e-mail', texto: 'Aviso de compra aprovada e de reserva expirada' },
 ]
 
