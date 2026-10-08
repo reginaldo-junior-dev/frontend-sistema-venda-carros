@@ -48,7 +48,8 @@ export function FormularioCliente({ cliente, textoBotao, aoConcluir, className }
 
   async function enviar(valores) {
     const dados = {
-      cpf: soDigitos(valores.cpf),
+      // O CPF é definido no cadastro e não muda depois
+      cpf: cliente ? cliente.cpf : soDigitos(valores.cpf),
       dataNascimento: valores.dataNascimento,
       telefone: soDigitos(valores.telefone),
     }
@@ -80,14 +81,20 @@ export function FormularioCliente({ cliente, textoBotao, aoConcluir, className }
         name="cpf"
         control={control}
         render={({ field }) => (
-          <Campo rotulo="CPF" erro={errors.cpf?.message}>
+          <Campo
+            rotulo="CPF"
+            erro={errors.cpf?.message}
+            ajuda={cliente ? 'O CPF não pode ser alterado depois do cadastro.' : undefined}
+          >
             {(props) => (
               <Input
                 {...props}
                 {...field}
+                readOnly={Boolean(cliente)}
                 inputMode="numeric"
                 autoComplete="off"
                 placeholder="000.000.000-00"
+                className="read-only:cursor-default read-only:text-texto-suave"
                 onChange={(e) => field.onChange(mascaraCpf(e.target.value))}
               />
             )}
