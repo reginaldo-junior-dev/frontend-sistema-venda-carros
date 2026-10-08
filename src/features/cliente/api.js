@@ -16,7 +16,8 @@ export async function cadastrarCliente({ cpf, dataNascimento, telefone }) {
   return data
 }
 
-export async function atualizarCliente({ cpf, dataNascimento, telefone }) {
-  const { data } = await http.put('/cliente/me', { cpf, dataNascimento, telefone })
+// O CPF é definido no cadastro e a API não aceita alteração
+export async function atualizarCliente({ dataNascimento, telefone }) {
+  const { data } = await http.put('/cliente/me', { dataNascimento, telefone })
   return data
 }

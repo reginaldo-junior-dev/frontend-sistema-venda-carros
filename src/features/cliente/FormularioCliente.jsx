@@ -48,8 +48,7 @@ export function FormularioCliente({ cliente, textoBotao, aoConcluir, className }
 
   async function enviar(valores) {
     const dados = {
-      // O CPF é definido no cadastro e não muda depois
-      cpf: cliente ? cliente.cpf : soDigitos(valores.cpf),
+      cpf: soDigitos(valores.cpf),
       dataNascimento: valores.dataNascimento,
       telefone: soDigitos(valores.telefone),
     }
