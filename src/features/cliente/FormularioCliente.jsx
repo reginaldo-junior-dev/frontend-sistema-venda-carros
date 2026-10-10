@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { AvisoDadosFicticios } from '@/components/shared/AvisoDadosFicticios'
 import { Campo } from '@/components/shared/Campo'
 import { cpf as mascaraCpf, soDigitos, telefone as mascaraTelefone } from '@/lib/format'
 import { cpfValido, telefoneValido } from '@/lib/validacao'
@@ -75,6 +76,12 @@ export function FormularioCliente({ cliente, textoBotao, aoConcluir, className }
         <p role="alert" className="rounded-controle border border-vendido/40 bg-vendido/8 px-3 py-2 text-sm text-vendido">
           {errors.root.message}
         </p>
+      )}
+      {!cliente && (
+        <AvisoDadosFicticios>
+          Use dados fictícios. O CPF precisa ter dígitos verificadores válidos, mas pode ser criado num
+          gerador de CPF on-line. As contas de administrador de teste conseguem ver estes dados.
+        </AvisoDadosFicticios>
       )}
       <Controller
         name="cpf"

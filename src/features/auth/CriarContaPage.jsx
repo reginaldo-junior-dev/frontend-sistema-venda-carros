@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { InputSenha } from '@/components/ui/input-senha'
+import { AvisoDadosFicticios } from '@/components/shared/AvisoDadosFicticios'
 import { Campo } from '@/components/shared/Campo'
 import { cn } from '@/lib/utils'
 import { criarConta } from './api'
@@ -66,6 +67,10 @@ export default function CriarContaPage() {
 
   return (
     <AuthLayout titulo="Crie sua conta" descricao="Leva menos de um minuto. Você recebe um e-mail de boas-vindas.">
+      <AvisoDadosFicticios>
+        Este é um projeto de portfólio. Não use dados pessoais reais: as contas de administrador de teste
+        conseguem ver o que for cadastrado.
+      </AvisoDadosFicticios>
       <BotaoGoogle>Criar conta com Google</BotaoGoogle>
       <Separador />
       <form onSubmit={handleSubmit(enviar)} noValidate className="flex flex-col gap-5">
