@@ -19,7 +19,6 @@ Este repositório é o **front-end** (React). Ele consome a API [api-sistema-ven
 - [Acesso ao painel da revenda](#acesso-ao-painel-da-revenda)
 - [Testes](#testes)
 - [Estrutura de pastas](#estrutura-de-pastas)
-- [Deploy na Vercel](#deploy-na-vercel)
 - [Créditos das imagens](#créditos-das-imagens)
 
 ---
@@ -187,10 +186,7 @@ Sem ele, a API ainda confere esses pagamentos direto na Stripe a cada minuto, en
 
 O botão "Continuar com Google" leva para a API (pelo `/api` do site), que faz o login com o Google, grava o cookie da sessão e devolve a pessoa para `/oauth/callback`. Essa página só pergunta à API quem entrou e segue para a home, ou para o painel se for administrador.
 
-Para funcionar, a API precisa das credenciais do Google configuradas (veja o README da API), e o endereço de retorno cadastrado no Google Cloud passa pelo site:
-
-- em desenvolvimento: `http://localhost:5173/api/login/oauth2/code/google`;
-- em produção: `https://<seu-site>.vercel.app/api/login/oauth2/code/google`.
+Para funcionar, a API precisa das credenciais do Google configuradas (veja o README da API), e o endereço de retorno cadastrado no Google Cloud passa pelo site: `http://localhost:5173/api/login/oauth2/code/google`.
 
 Sem as credenciais, o login com e-mail e senha continua funcionando normalmente.
 
@@ -272,21 +268,6 @@ public/               # imagens, vídeos e arquivos servidos como estão
 ```
 
 Cada pasta de `features/` segue o mesmo padrão: `api.js` com as chamadas HTTP, `hooks.js` com as consultas do TanStack Query, e os componentes da área. Os testes unitários ficam ao lado do arquivo que testam (`filtros.js` → `filtros.test.js`).
-
----
-
-## Deploy na Vercel
-
-1. Importe o repositório na [Vercel](https://vercel.com). Ela reconhece o Vite sozinha (build `npm run build`, pasta `dist`).
-2. No `vercel.json`, troque `SUA-API.onrender.com` pelo endereço da API no Render. É por ele que a Vercel repassa as chamadas de `/api`. O build na Vercel **falha de propósito** enquanto o endereço de exemplo estiver lá.
-3. Em **Settings → Environment Variables**, cadastre `VITE_STRIPE_PUBLISHABLE_KEY`: `pk_test_...` enquanto o site estiver em teste, `pk_live_...` para cobrar de verdade.
-4. Na API publicada, configure `FRONTEND_URL` com o endereço do site na Vercel (sem barra no final), para o login com Google voltar para ele.
-
-O que o `vercel.json` faz:
-- repassa `/api/...` para a API, **sem guardar as respostas em cache**, porque elas trazem dados de quem está logado;
-- faz as rotas do site (`/carros/123`, `/conta`...) abrirem direto pelo link;
-- deixa os arquivos de `/assets` em cache por um ano;
-- adiciona os cabeçalhos de segurança.
 
 ---
 
